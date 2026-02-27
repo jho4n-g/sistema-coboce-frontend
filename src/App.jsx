@@ -77,6 +77,8 @@ import DocumetosLayout from './pages/document/DocumetosLayout.jsx';
 import UsuarioAdmin from './pages/admin/AdminFunciones/Usuarios/Usuario.jsx';
 import RolAdmin from './pages/admin/AdminFunciones/Roles/Rol.jsx';
 import GestionAdmin from './pages/admin/AdminFunciones/Gestiones/Gestiones.jsx';
+//Informe Gerente
+import InformeGerente from './pages/admin/InformeGerente/InformeGerente.jsx';
 //provideer
 import { AuthProvider } from './providers/auth.provider.jsx';
 
@@ -243,6 +245,8 @@ function App() {
               path="medicina/inventario"
               element={<InventarioMedicina />}
             />
+            {/* Informe Gerente */}
+            <Route path="informe-gerente" element={<InformeGerente />} />
           </Route>
           <Route path="/cliente" element={<ClienteLayout />}>
             <Route index element={<Inicio />} />

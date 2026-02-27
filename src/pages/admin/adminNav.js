@@ -180,6 +180,19 @@ export const adminNav = [
       },
     ],
   },
+
+  {
+    id: 'informeGerente',
+    title: 'Informe Gerente',
+    icon: Cog6ToothIcon,
+    items: [
+      {
+        label: 'Indicadores del periodo',
+        to: '/admin/informe-gerente',
+        icon: Cog6ToothIcon,
+      },
+    ],
+  },
   {
     id: 'secretaria',
     title: 'Secretaria',
