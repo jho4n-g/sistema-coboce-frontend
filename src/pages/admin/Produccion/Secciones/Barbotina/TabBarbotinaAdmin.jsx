@@ -6,7 +6,6 @@ import BarbotinaCliente from '../../../../client/Produccion/Secciones/Tabs/Barbo
 const tabs = [
   { key: 'tabla', label: 'Tabla' },
   { key: 'llenado', label: 'Llenado' },
-  { key: 'resumen', label: 'Resumen' },
 ];
 
 export default function TabBarbotinaAdmin() {
@@ -19,7 +18,6 @@ export default function TabBarbotinaAdmin() {
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         {tab === 'tabla' && <BarbotinaAdmin />}
         {tab === 'llenado' && <BarbotinaCliente />}
-        {tab === 'resumen' && <di>Resumen</di>}
       </div>
     </div>
   );

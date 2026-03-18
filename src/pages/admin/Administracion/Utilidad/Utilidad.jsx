@@ -40,7 +40,7 @@ const columnas = [
   {
     label: 'Meta',
     key: 'meta',
-    render: (row) => AgregarPorcentaje(row.meta),
+    render: (row) => AgregarPorcentaje(row?.meta || 0),
   },
 ];
 

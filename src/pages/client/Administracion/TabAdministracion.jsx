@@ -26,10 +26,7 @@ const tabs = [
     key: 'IndiceSeveridadLlenado',
     label: 'Indice severidad',
   },
-  {
-    key: 'ConsultorioDentaLlenado',
-    label: 'Consultorio dental',
-  },
+
   {
     key: 'DonacionesLlenado',
     label: 'Donaciones ',

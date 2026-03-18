@@ -94,6 +94,7 @@ export default function CorrespondenciaRecibida() {
       }
       if (!res.ok) {
         toast.error(res.message || 'Error al eliminar el registro');
+        setOpenConfirmCreate(false);
       }
     } catch (e) {
       toast.error(e.message || 'Problemos en el servidor');

@@ -9,6 +9,8 @@ import { datosPrensadoSecado } from '@schema/Produccion/Seccion/Prensado.schema'
 //
 import { getObjs } from '@service/Produccion/Turno.services';
 import Select from '@components/Select';
+//
+import { getObjsUnidos as getLineas } from '@service/Produccion/Secciones/Lineas.services';
 
 const NuevaFilaTabla = () => ({
   hora: '',
@@ -83,6 +85,9 @@ export default function Prensado() {
   const [turnoError, setTurnoError] = useState(null);
   const [turnoId, setTurnoId] = useState(null);
 
+  const [lineaId, setLineaId] = useState(null);
+  const [lineaError, setLineaError] = useState('');
+
   const addObs = () => {
     const v = obsInput.trim();
 
@@ -101,7 +106,7 @@ export default function Prensado() {
     setForm((f) => ({
       ...f,
       observaciones_prensado_secado: f.observaciones_prensado_secado.filter(
-        (_, i) => i !== index
+        (_, i) => i !== index,
       ),
     }));
   };
@@ -209,17 +214,22 @@ export default function Prensado() {
     } else {
       setTurnoError('');
     }
+    if (!lineaId) {
+      setTurnoError('Selecciona un turno');
+    } else {
+      setTurnoError('');
+    }
     const result = datosPrensadoSecado.safeParse(form);
     if (!result.success) {
       const { fieldErrors } = result.error.flatten();
 
       const tablaErrors = extractArrayFieldErrors(
         result.error,
-        'tabla_prensado_secado'
+        'tabla_prensado_secado',
       );
       const tablaErrorsSilo = extractArrayFieldErrors(
         result.error,
-        'tabla_silos_usado'
+        'tabla_silos_usado',
       );
       setTablaSiloError(tablaErrorsSilo);
       setTablaError(tablaErrors);
@@ -227,7 +237,7 @@ export default function Prensado() {
       toast.error('Datos incorrectos');
       return;
     } else {
-      const data = { turno_id: turnoId, ...result.data };
+      const data = { turno_id: turnoId, linea_id: lineaId, ...result.data };
       setDataSave(data);
       setOpenConfirm(true);
     }
@@ -304,6 +314,19 @@ export default function Prensado() {
               value={form?.supervisor_turno || ''}
               onChange={updateBase}
               error={error.supervisor_turno}
+            />
+          </div>
+          <div className="md:col-span-1 lg:col-span-3">
+            <Select
+              label="Línea"
+              value={lineaId}
+              onChange={(v) => {
+                setLineaId(v);
+                setLineaError('');
+              }}
+              placeholder="Selecciona una línea"
+              getDatos={getLineas}
+              error={lineaError}
             />
           </div>
           <div className="md:col-span-1 lg:col-span-6">
@@ -796,7 +819,7 @@ export default function Prensado() {
                       setCargaTabla(
                         idx,
                         'espesor_molde_tres_a',
-                        e.target.value
+                        e.target.value,
                       );
                     }}
                     error={!!tablaError[idx]?.espesor_molde_tres_a}
@@ -812,7 +835,7 @@ export default function Prensado() {
                       setCargaTabla(
                         idx,
                         'espesor_molde_tres_b',
-                        e.target.value
+                        e.target.value,
                       );
                     }}
                     error={!!tablaError[idx]?.espesor_molde_tres_b}
@@ -828,7 +851,7 @@ export default function Prensado() {
                       setCargaTabla(
                         idx,
                         'espesor_molde_cuatro_a',
-                        e.target.value
+                        e.target.value,
                       );
                     }}
                     error={!!tablaError[idx]?.espesor_molde_cuatro_a}
@@ -844,7 +867,7 @@ export default function Prensado() {
                       setCargaTabla(
                         idx,
                         'espesor_molde_cuatro_b',
-                        e.target.value
+                        e.target.value,
                       );
                     }}
                     error={!!tablaError[idx]?.espesor_molde_cuatro_b}
@@ -860,7 +883,7 @@ export default function Prensado() {
                       setCargaTabla(
                         idx,
                         'espesor_molde_cinco_a',
-                        e.target.value
+                        e.target.value,
                       );
                     }}
                     error={!!tablaError[idx]?.espesor_molde_cinco_a}
@@ -876,7 +899,7 @@ export default function Prensado() {
                       setCargaTabla(
                         idx,
                         'espesor_molde_cinco_b',
-                        e.target.value
+                        e.target.value,
                       );
                     }}
                     error={!!tablaError[idx]?.espesor_molde_cinco_b}
@@ -892,7 +915,7 @@ export default function Prensado() {
                       setCargaTabla(
                         idx,
                         'espesor_molde_seis_a',
-                        e.target.value
+                        e.target.value,
                       );
                     }}
                     error={!!tablaError[idx]?.espesor_molde_seis_a}
@@ -908,7 +931,7 @@ export default function Prensado() {
                       setCargaTabla(
                         idx,
                         'espesor_molde_seis_b',
-                        e.target.value
+                        e.target.value,
                       );
                     }}
                     error={!!tablaError[idx]?.espesor_molde_seis_b}
@@ -924,7 +947,7 @@ export default function Prensado() {
                       setCargaTabla(
                         idx,
                         'espesor_molde_siete_a',
-                        e.target.value
+                        e.target.value,
                       );
                     }}
                     error={!!tablaError[idx]?.espesor_molde_siete_a}
@@ -940,7 +963,7 @@ export default function Prensado() {
                       setCargaTabla(
                         idx,
                         'espesor_molde_siete_b',
-                        e.target.value
+                        e.target.value,
                       );
                     }}
                     error={!!tablaError[idx]?.espesor_molde_siete_b}

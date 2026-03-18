@@ -34,10 +34,15 @@ export const getObjPromedios = async () => {
 
 export const getAllObj = async (id) => {
   try {
-    const data = await api.get(
-      `/produccion/indice-consumo-bases/cliente/${id}`,
-    );
-    return data.data;
+    if (id != null) {
+      const data = await api.get(
+        `/produccion/indice-consumo-bases/cliente/${id}`,
+      );
+      return data.data;
+    } else {
+      const data = await api.get(`/produccion/indice-consumo-bases/cliente/`);
+      return data.data;
+    }
   } catch (e) {
     return toServiceError(e);
   }

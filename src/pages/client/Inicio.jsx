@@ -1,3 +1,8 @@
+import Alertar from '../admin/gestionAlertas/Tabs/admin/Alertar';
 export default function Inicio() {
-  return <h1>Hello, world inicio</h1>;
+  return (
+    <div className="px-10">
+      <Alertar />
+    </div>
+  );
 }

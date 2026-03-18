@@ -6,6 +6,15 @@ import {
   BuildingOffice2Icon,
   ClipboardDocumentListIcon,
   ChartBarIcon,
+  BellIcon,
+  WrenchScrewdriverIcon,
+  DocumentTextIcon,
+  FolderIcon,
+  UserGroupIcon,
+  BeakerIcon,
+  CurrencyDollarIcon,
+  BriefcaseIcon,
+  HeartIcon,
 } from '@heroicons/react/24/outline';
 
 export const adminNav = [
@@ -14,65 +23,114 @@ export const adminNav = [
     title: 'Admin',
     icon: HomeIcon,
     items: [
-      { label: 'Gestion usuarios', to: '/admin/usuarios', icon: ChartBarIcon },
-      {
-        label: 'Gestion roles',
-        to: '/admin/roles',
-        icon: ClipboardDocumentListIcon,
-      },
+      { label: 'Gestion usuarios', to: '/admin/usuarios', icon: UsersIcon },
+      { label: 'Gestion roles', to: '/admin/roles', icon: UserGroupIcon },
       {
         label: 'Gestiones indicadores',
         to: '/admin/gestion',
-        icon: ClipboardDocumentListIcon,
+        icon: ChartBarIcon,
       },
     ],
   },
+
   {
     id: 'controlDocumentos',
     title: 'Control Documentos',
-    icon: CalendarDaysIcon,
+    icon: FolderIcon,
     items: [
       {
-        label: 'Politicas',
-        to: '/admin/documento/politica',
+        label: 'Gestion comunicados',
+        to: '/admin/documento/gestion-comunicado',
+        icon: DocumentTextIcon,
+      },
+      {
+        label: 'Gestion frases',
+        to: '/admin/documento/gestion-frase',
+        icon: DocumentTextIcon,
+      },
+      {
+        label: 'Gestion noticias',
+        to: '/admin/documento/gestion-noticia',
+        icon: DocumentTextIcon,
+      },
+      {
+        label: 'Gestion calidad',
+        to: '/admin/documento/gestion-calidad',
         icon: ClipboardDocumentListIcon,
       },
       {
-        label: 'Procedimientos',
-        to: '/admin/documento/procedimiento',
-        icon: CalendarDaysIcon,
+        label: 'Gestion ambiental',
+        to: '/admin/documento/gestion-ambiental',
+        icon: ClipboardDocumentListIcon,
       },
       {
-        label: 'Novedades',
-        to: '/admin/documento/boletin',
-        icon: Cog6ToothIcon,
+        label: 'Gestion seguridad',
+        to: '/admin/documento/gestion-seguridad',
+        icon: ClipboardDocumentListIcon,
       },
     ],
   },
   {
+    id: 'cumpleanos',
+    title: 'Gestion de cumpleaños',
+    icon: BellIcon,
+    items: [{ label: 'Trabajadores', to: '/admin/cumpleanos', icon: BellIcon }],
+  },
+
+  {
+    id: 'alerta',
+    title: 'Gestion alerta',
+    icon: BellIcon,
+    items: [{ label: 'Alertas', to: '/admin/alerta', icon: BellIcon }],
+  },
+
+  {
+    id: 'gestionVAon',
+    title: 'Gestion VAON',
+    icon: BuildingOffice2Icon,
+    items: [
+      {
+        label: 'Produccion Nacional',
+        to: '/admin/vaon/produccion-nacional',
+        icon: ChartBarIcon,
+      },
+      {
+        label: 'Produccion Importado',
+        to: '/admin/vaon/produccion-importado',
+        icon: ChartBarIcon,
+      },
+      {
+        label: 'Informe VAON',
+        to: '/admin/vaon/informe',
+        icon: DocumentTextIcon,
+      },
+    ],
+  },
+
+  {
     id: 'produccion',
     title: 'Produccion',
-    icon: UsersIcon,
+    icon: Cog6ToothIcon,
     items: [
       {
         label: 'Gestion lineas',
         to: '/admin/produccion/lineas',
-        icon: UsersIcon,
+        icon: WrenchScrewdriverIcon,
       },
       {
         label: 'Gestion de formatos',
         to: '/admin/produccion/formato',
-        icon: UsersIcon,
+        icon: ClipboardDocumentListIcon,
       },
       {
         label: 'Informe produccion',
         to: '/admin/produccion/informe-produccion',
-        icon: UsersIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Moliendo barbotina',
         to: '/admin/produccion/barbotina',
-        icon: UsersIcon,
+        icon: BeakerIcon,
       },
       {
         label: 'Atomizado',
@@ -87,96 +145,93 @@ export const adminNav = [
       {
         label: 'Linea esmaltacion',
         to: '/admin/produccion/esmalte',
-        icon: Cog6ToothIcon,
+        icon: BeakerIcon,
       },
       {
-        label: 'Serigrafica y decorado ',
+        label: 'Serigrafica y decorado',
         to: '/admin/produccion/serigrafia',
         icon: Cog6ToothIcon,
       },
       {
         label: 'Seleccion y embalaje',
         to: '/admin/produccion/seleccion',
-        icon: Cog6ToothIcon,
+        icon: BriefcaseIcon,
       },
     ],
   },
+
   {
     id: 'produccionAdministracion',
     title: 'Produccion administracion',
-    icon: Cog6ToothIcon,
+    icon: ChartBarIcon,
     items: [
       {
         label: 'Calidad',
         to: '/admin/produccion/administracion/calidad',
-        icon: Cog6ToothIcon,
+        icon: ClipboardDocumentListIcon,
       },
       {
         label: 'Indice consumo agua',
         to: '/admin/produccion/administracion/indice-consumo-agua',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Indice consumo bases',
         to: '/admin/produccion/administracion/indice-consumo-bases',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Indice consumo ee',
         to: '/admin/produccion/administracion/indice-consumo-ee',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Indice consumo engobe',
         to: '/admin/produccion/administracion/indice-consumo-engobe',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Indice consumo esmalte',
         to: '/admin/produccion/administracion/indice-consumo-esmalte',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Indice consumo gn',
         to: '/admin/produccion/administracion/indice-consumo-gn',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Indice consumo linea',
         to: '/admin/produccion/administracion/indice-consumo-linea',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Indice polvo atomizado',
         to: '/admin/produccion/administracion/indice-polvo-atomizado',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Monitoreo gases combustion',
         to: '/admin/produccion/administracion/monitoreo-gases-combustion',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Produccion',
         to: '/admin/produccion/administracion/produccion',
-        icon: Cog6ToothIcon,
-      },
-      {
-        label: 'Producto no conforme',
-        to: '/admin/produccion/administracion/no-conforme',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
     ],
   },
+
   {
     id: 'mantenimiento',
     title: 'Mantenimiento',
-    icon: Cog6ToothIcon,
+    icon: WrenchScrewdriverIcon,
     items: [
       {
         label: 'Disponibilidad por linea',
         to: '/admin/mantenimiento/disponibilidad-linea',
-        icon: Cog6ToothIcon,
+        icon: WrenchScrewdriverIcon,
       },
     ],
   },
@@ -184,51 +239,53 @@ export const adminNav = [
   {
     id: 'informeGerente',
     title: 'Informe Gerente',
-    icon: Cog6ToothIcon,
+    icon: ChartBarIcon,
     items: [
       {
         label: 'Indicadores del periodo',
         to: '/admin/informe-gerente',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
     ],
   },
+
   {
     id: 'secretaria',
     title: 'Secretaria',
-    icon: Cog6ToothIcon,
+    icon: BriefcaseIcon,
     items: [
       {
         label: 'Contratos',
         to: '/admin/secretaria/contrato',
-        icon: Cog6ToothIcon,
+        icon: DocumentTextIcon,
       },
       {
         label: 'Correspondencia recibida unidad',
         to: '/admin/secretaria/correspondencia',
-        icon: Cog6ToothIcon,
+        icon: FolderIcon,
       },
       {
         label: 'Correspondencia externa - Gerencia',
         to: '/admin/secretaria/gerencia',
-        icon: Cog6ToothIcon,
+        icon: FolderIcon,
       },
       {
         label: 'Correspondencia externa - Comercial',
         to: '/admin/secretaria/comercial',
-        icon: Cog6ToothIcon,
+        icon: FolderIcon,
       },
     ],
   },
+
   {
     id: 'medico',
     title: 'Consultorio medico',
-    icon: Cog6ToothIcon,
+    icon: HeartIcon,
     items: [
       {
         label: 'Inventario',
         to: '/admin/medicina/inventario',
-        icon: Cog6ToothIcon,
+        icon: BeakerIcon,
       },
     ],
   },
@@ -236,69 +293,65 @@ export const adminNav = [
   {
     id: 'administracion',
     title: 'Administración',
-    icon: Cog6ToothIcon,
+    icon: BuildingOffice2Icon,
     items: [
       {
         label: 'Horas extra',
         to: '/admin/administracion/horas-extra',
-        icon: Cog6ToothIcon,
+        icon: UsersIcon,
       },
       {
         label: 'Utilidad',
         to: '/admin/administracion/utilidad',
-        icon: Cog6ToothIcon,
+        icon: CurrencyDollarIcon,
       },
       {
         label: 'Generacion de residuos',
         to: '/admin/administracion/generacion-residuos',
-        icon: Cog6ToothIcon,
+        icon: BeakerIcon,
       },
       {
         label: 'Indice de frecuencia',
         to: '/admin/administracion/indice-frecuencia',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Indice de severidad',
         to: '/admin/administracion/indice-severidad',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Donaciones',
         to: '/admin/administracion/donaciones',
-        icon: Cog6ToothIcon,
+        icon: HeartIcon,
       },
       {
         label: 'Atencion consultorio',
         to: '/admin/administracion/atencion-consultorio',
-        icon: Cog6ToothIcon,
-      },
-      {
-        label: 'Reclamo producto terminado',
-        to: '/admin/administracion/reclamo-producto-terminado',
-        icon: Cog6ToothIcon,
+        icon: HeartIcon,
       },
     ],
   },
+
   {
     id: 'comercializacion',
     title: 'Comercializacion',
-    icon: Cog6ToothIcon,
+    icon: CurrencyDollarIcon,
     items: [
       {
         label: 'Ingreso por venta total',
         to: '/admin/comercializacion/ingreso-venta-total',
-        icon: Cog6ToothIcon,
+        icon: CurrencyDollarIcon,
       },
       {
         label: 'Venta total',
         to: '/admin/comercializacion/venta-total',
-        icon: Cog6ToothIcon,
+        icon: ChartBarIcon,
       },
       {
         label: 'Precio unitario',
         to: '/admin/comercializacion/precio-unitario',
-        icon: Cog6ToothIcon,
+        icon: CurrencyDollarIcon,
       },
     ],
   },

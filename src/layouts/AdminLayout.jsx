@@ -7,6 +7,7 @@ import {
   ArrowRightOnRectangleIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import LogoCeramica from '../img/logo-ceramica-coboce.png';
 import { adminNav } from '../pages/admin/adminNav.js';
 
 function cx(...classes) {
@@ -14,10 +15,17 @@ function cx(...classes) {
 }
 
 const BRAND = {
-  name: 'Respawn Admin',
+  name: 'Panel Admin',
   logo: (
-    <div className="grid h-10 w-10 place-items-center rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 text-white font-bold shadow-sm">
-      R
+    <div className="flex items-center gap-3 px-3 py-4">
+      {/* Logo */}
+      <div className="h-10 w-20 rounded-xl bg-white  flex items-center justify-center overflow-hidden">
+        <img
+          src={LogoCeramica}
+          alt="Logo"
+          className="h-full w-full object-cover"
+        />
+      </div>
     </div>
   ),
 };
@@ -55,7 +63,7 @@ function SidebarContent({
                   className={cx(
                     'group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left',
                     'hover:bg-slate-100',
-                    isOpen ? 'bg-slate-100' : 'bg-transparent'
+                    isOpen ? 'bg-slate-100' : 'bg-transparent',
                   )}
                 >
                   <GroupIcon className="h-6 w-6 shrink-0 text-slate-700" />
@@ -77,7 +85,7 @@ function SidebarContent({
                 <div
                   className={cx(
                     'mt-1 overflow-hidden transition-all duration-300',
-                    isOpen && !sidebarCollapsed ? 'max-h-120' : 'max-h-0'
+                    isOpen && !sidebarCollapsed ? 'max-h-120' : 'max-h-0',
                   )}
                 >
                   <div className="ml-3 border-l border-slate-200 pl-3">
@@ -94,7 +102,7 @@ function SidebarContent({
                               'mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm',
                               isActive
                                 ? 'bg-green-900 text-white shadow-sm'
-                                : 'text-slate-700 hover:bg-slate-100 hover:text-emerald-700'
+                                : 'text-slate-700 hover:bg-slate-100 hover:text-emerald-700',
                             )
                           }
                           end
@@ -102,7 +110,7 @@ function SidebarContent({
                           <ItemIcon
                             className={cx(
                               'h-5 w-5 shrink-0',
-                              active ? 'text-white' : 'text-slate-500'
+                              active ? 'text-white' : 'text-slate-500',
                             )}
                           />
                           <span className="truncate">{item.label}</span>
@@ -130,7 +138,7 @@ export default function AdminLayout() {
 
   const activeGroup = useMemo(
     () => findGroupFromPath(location.pathname),
-    [location.pathname]
+    [location.pathname],
   );
 
   const [openGroup, setOpenGroup] = useState(activeGroup);
@@ -210,7 +218,7 @@ export default function AdminLayout() {
       <div
         className={cx(
           'fixed inset-0 z-50 md:hidden',
-          mobileOpen ? 'pointer-events-auto' : 'pointer-events-none'
+          mobileOpen ? 'pointer-events-auto' : 'pointer-events-none',
         )}
         aria-hidden={!mobileOpen}
       >
@@ -218,7 +226,7 @@ export default function AdminLayout() {
         <div
           className={cx(
             'absolute inset-0 bg-black/40 transition-opacity',
-            mobileOpen ? 'opacity-100' : 'opacity-0'
+            mobileOpen ? 'opacity-100' : 'opacity-0',
           )}
           onClick={() => setMobileOpen(false)}
         />
@@ -228,7 +236,7 @@ export default function AdminLayout() {
           className={cx(
             'absolute left-0 top-0 h-full w-[18rem] border-r border-slate-200/70 bg-white/90 backdrop-blur',
             'transition-transform duration-300',
-            mobileOpen ? 'translate-x-0' : '-translate-x-full'
+            mobileOpen ? 'translate-x-0' : '-translate-x-full',
           )}
         >
           <div className="flex h-16 items-center justify-between border-b border-slate-200/70 px-4">
@@ -264,7 +272,7 @@ export default function AdminLayout() {
         <aside
           className={cx(
             'h-full border-r border-slate-200/70 bg-white/70 backdrop-blur transition-all duration-300',
-            sidebarOpen ? 'w-72' : 'w-20'
+            sidebarOpen ? 'w-72' : 'w-20',
           )}
         >
           <SidebarContent

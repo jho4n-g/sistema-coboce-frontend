@@ -12,6 +12,7 @@ export const getObjs = async () => {
 export const getIdObj = async (id) => {
   try {
     const data = await api.get(`/produccion/dia-informe/${id}`);
+
     return data.data;
   } catch (e) {
     return toServiceError(e);

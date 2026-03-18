@@ -151,7 +151,7 @@ export default function SelecccionModal({
           return;
         }
 
-        const datos = resp?.datos ?? {};
+        const datos = resp?.dato ?? {};
 
         // ✅ Fusionar con base para evitar undefined
         setForm({

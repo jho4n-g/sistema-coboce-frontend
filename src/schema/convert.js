@@ -281,3 +281,15 @@ export const reqIntOptional = (label) => {
       .optional(), // 👈 CLAVE
   );
 };
+export const reqArray = (fieldName = 'IDs') =>
+  z
+    .array(
+      z.union([
+        z.number().int().positive(),
+        z
+          .string()
+          .regex(/^\d+$/, `${fieldName} debe contener IDs numéricos`)
+          .transform((v) => Number(v)),
+      ]),
+    )
+    .min(1, `Debes seleccionar al menos un ${fieldName}`);

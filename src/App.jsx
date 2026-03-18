@@ -15,9 +15,14 @@ import CorrespondenciaExternaRecibida from './pages/admin/Secretaria/Corresponde
 import CorrespondenciaExternaComercial from './pages/admin/Secretaria/CorrespondenciaExternaComercial/CorrespondenciaExternaComercial.jsx';
 
 //documentos
-import ProcedimientoAmin from './pages/admin/Documento/Procedimiento/Procedimiento.jsx';
-import PoliticaAdmin from './pages/admin/Documento/Politica/Politica.jsx';
-import BoletinAdmin from './pages/admin/Documento/Boletin/Boletin.jsx';
+
+import GestionCalidadPage from './pages/admin/Documento/gestionCalidad/TabCalidad.jsx';
+import GestionAmbiental from './pages/admin/Documento/gestionAmbiental/TabAmbiental.jsx';
+import GestionSeguridad from './pages/admin/Documento/gestionSeguridad/TabSeguridad.jsx';
+import GestionNoticia from './pages/admin/Documento/gestionNoticias/Noticia.jsx';
+import GestionComunicado from './pages/admin/Documento/gestionComunicados/Comunicado.jsx';
+import GestionFrases from './pages/admin/Documento/gestionFrases/Frases.jsx';
+
 //produccio
 import TabBarbotinaAdmin from './pages/admin/Produccion/Secciones/Barbotina/TabBarbotinaAdmin.jsx';
 import TabAtomizadoAdmin from './pages/admin/Produccion/Secciones/Atomizado/TabAtomizadoAdmin.jsx';
@@ -72,15 +77,23 @@ import TabComercializacion from './pages/client/Comercializacion/TabComercializa
 import Prueba from './components/Prueba.jsx';
 //Documentos
 import DocumetosLayout from './pages/document/DocumetosLayout.jsx';
-
 //admin
 import UsuarioAdmin from './pages/admin/AdminFunciones/Usuarios/Usuario.jsx';
 import RolAdmin from './pages/admin/AdminFunciones/Roles/Rol.jsx';
 import GestionAdmin from './pages/admin/AdminFunciones/Gestiones/Gestiones.jsx';
 //Informe Gerente
 import InformeGerente from './pages/admin/InformeGerente/InformeGerente.jsx';
+//Vaon
+import TabProduccionNacionalVaon from './pages/admin/Vaon/ProduccionNacional/TabProduccionNacional.jsx';
+import TabProduccionImportadoVaon from './pages/admin/Vaon/ProduccionImportado/TabProduccionImportado.jsx';
+import TabInformeVaon from './pages/admin/Vaon/Informe/TabInforme.jsx';
 //provideer
 import { AuthProvider } from './providers/auth.provider.jsx';
+//Alertas
+import TabsAlertasAdmin from './pages/admin/gestionAlertas/TabsAlertas.jsx';
+import CarrucelMovimiento from './carruceImagenes/CarrucelMovimiento.jsx';
+//Cumpleaños
+import CumpleanosAdmin from './pages/admin/Cumpleaños/Cumpleanos.jsx';
 
 function App() {
   return (
@@ -221,12 +234,6 @@ function App() {
               element={<DisponibilidadPorLinea />}
             />
             {/** Documento */}
-            <Route
-              path="documento/procedimiento"
-              element={<ProcedimientoAmin />}
-            />
-            <Route path="documento/politica" element={<PoliticaAdmin />} />
-            <Route path="documento/boletin" element={<BoletinAdmin />} />
 
             <Route path="secretaria/contrato" element={<ContratoAdmin />} />
             <Route
@@ -247,6 +254,42 @@ function App() {
             />
             {/* Informe Gerente */}
             <Route path="informe-gerente" element={<InformeGerente />} />
+            {/****Documeto */}
+            <Route
+              path="documento/gestion-calidad"
+              element={<GestionCalidadPage />}
+            />
+            <Route
+              path="documento/gestion-ambiental"
+              element={<GestionAmbiental />}
+            />
+            <Route
+              path="documento/gestion-seguridad"
+              element={<GestionSeguridad />}
+            />
+            <Route
+              path="documento/gestion-noticia"
+              element={<GestionNoticia />}
+            />
+            <Route
+              path="documento/gestion-comunicado"
+              element={<GestionComunicado />}
+            />
+            <Route path="documento/gestion-frase" element={<GestionFrases />} />
+            {/***Gestion Vaon */}
+            <Route
+              path="vaon/produccion-nacional"
+              element={<TabProduccionNacionalVaon />}
+            />
+            <Route
+              path="vaon/produccion-importado"
+              element={<TabProduccionImportadoVaon />}
+            />
+            <Route path="vaon/informe" element={<TabInformeVaon />} />
+            {/***Alertar */}
+            <Route path="alerta" element={<TabsAlertasAdmin />} />
+            {/***Cumpleanos */}
+            <Route path="cumpleanos" element={<CumpleanosAdmin />} />
           </Route>
           <Route path="/cliente" element={<ClienteLayout />}>
             <Route index element={<Inicio />} />
@@ -264,6 +307,7 @@ function App() {
             <Route path="comercializacion" element={<TabComercializacion />} />
           </Route>
           <Route path="/" element={<DocumetosLayout />} />
+          <Route path="/carrucel" element={<CarrucelMovimiento />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

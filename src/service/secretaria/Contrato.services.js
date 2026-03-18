@@ -49,9 +49,9 @@ export const createDocuments = async (payload) => {
     fd.append('fecha_inicio', payload.fecha_inicio);
     fd.append('finalizacion_contrato', payload.finalizacion_contrato);
 
-    fd.append('file', payload.file);
+    fd.append('pdf', payload.file);
 
-    const res = await api.post(`/secretaria/contrato`, fd);
+    const res = await api.post(`/secretaria/contrato/area/secretaria`, fd);
     return res.data;
   } catch (e) {
     return toServiceError(e);
@@ -71,9 +71,9 @@ export const updatedDocument = async (id, payload) => {
     fd.append('fecha_inicio', payload.fecha_inicio);
     fd.append('finalizacion_contrato', payload.finalizacion_contrato);
 
-    fd.append('file', payload.file);
+    fd.append('pdf', payload.file);
 
-    const res = await api.put(`/secretaria/contrato/${id}`, fd);
+    const res = await api.put(`/secretaria/contrato/${id}/area/secretaria`, fd);
     return res.data;
   } catch (e) {
     return toServiceError(e);

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import Tabs from '../../../../components/Tabs';
-import Atomizado from './Tabs/Atomizado';
-import Barbotina from './Tabs/Barbotina';
-import Prensado from './Tabs/Prensado';
-import Esmalte from './Tabs/Esmalte';
-import Serigrafia from './Tabs/Serigrafia';
-import Seleccion from './Tabs/Seleccion';
+import Atomizado from '../../../admin/Produccion/Secciones/Atomizado/TabAtomizadoAdmin';
+import Barbotina from '../../../admin/Produccion/Secciones/Barbotina/TabBarbotinaAdmin';
+import Prensado from '../../../admin/Produccion/Secciones/Prensado/TabPrensadoAdmin';
+import Esmalte from './../../../admin/Produccion/Secciones/Esmalte/TabEsmalteAdmin';
+import Serigrafia from './../../../admin/Produccion/Secciones/Serigrafia/TabSerigrafiado';
+import Seleccion from './../../../admin/Produccion/Secciones/Seleccion/TabSeleccion';
 
 const tabs = [
   { key: 'general', label: 'General' },

@@ -22,10 +22,15 @@ export const getObjsDesempenioMes = async (id) => {
 
 export const getObjsUser = async (id) => {
   try {
-    const data = await api.get(
-      `/administracion/genracion-residuos/cliente/${id}`,
-    );
-    return data.data;
+    if (id != null) {
+      const data = await api.get(
+        `/administracion/genracion-residuos/cliente/${id}`,
+      );
+      return data.data;
+    } else {
+      const data = await api.get(`/administracion/genracion-residuos/cliente/`);
+      return data.data;
+    }
   } catch (e) {
     return toServiceError(e);
   }

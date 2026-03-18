@@ -37,10 +37,16 @@ export const getObjsPromedios = async () => {
     return toServiceError(e);
   }
 };
+
 export const getAllObj = async (id) => {
   try {
-    const data = await api.get(`/produccion/calidad/periodo/${id}`);
-    return data.data;
+    if (id != null) {
+      const data = await api.get(`/produccion/calidad/periodo/${id}`);
+      return data.data;
+    } else {
+      const data = await api.get(`/produccion/calidad/periodo/`);
+      return data.data;
+    }
   } catch (e) {
     return toServiceError(e);
   }

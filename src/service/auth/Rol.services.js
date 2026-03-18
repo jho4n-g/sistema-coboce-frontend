@@ -20,7 +20,7 @@ export const getObjs = async () => {
 };
 export const getRoles = async () => {
   try {
-    const data = await api.get('/rol/roles');
+    const data = await api.get('/rol/seleccion');
     return data.data;
   } catch (e) {
     return toServiceError(e);

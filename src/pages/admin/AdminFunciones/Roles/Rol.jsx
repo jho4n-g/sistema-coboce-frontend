@@ -21,7 +21,7 @@ const columnas = [
         {row.permisos?.map((o, i) => (
           <span
             key={i}
-            className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 m-1"
+            className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-sm font-medium text-emerald-800 m-1"
           >
             {o.nombre}
           </span>
@@ -63,6 +63,7 @@ export default function Rol() {
         setOpenDeleteConfirm(false);
       }
       if (!res.ok) {
+        setOpenDeleteConfirm(false);
         throw new Error(res.message || 'Error al eliminar el rol');
       }
     } catch (e) {
@@ -92,6 +93,7 @@ export default function Rol() {
         setOpenCreate(false);
       }
       if (!res.ok) {
+        setOpenCreateConfirm(false);
         throw new Error(res.message || 'Error al actualizar el rol');
       }
     } catch (e) {
@@ -121,6 +123,7 @@ export default function Rol() {
         setOpenUpdate(false);
       }
       if (!res.ok) {
+        setOpenUpdateConfirm(false);
         throw new Error(res.message || 'Error al actualizar el rol');
       }
     } catch (e) {

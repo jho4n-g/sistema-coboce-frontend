@@ -35,10 +35,17 @@ export const registerObjMetas = async (payload) => {
 
 export const getObjsUser = async (id) => {
   try {
-    const data = await api.get(
-      `/comercializacion/ingreso-ventas-total/cliente/${id}`,
-    );
-    return data.data;
+    if (id != null) {
+      const data = await api.get(
+        `/comercializacion/ingreso-ventas-total/cliente/${id}`,
+      );
+      return data.data;
+    } else {
+      const data = await api.get(
+        `/comercializacion/ingreso-ventas-total/cliente/`,
+      );
+      return data.data;
+    }
   } catch (e) {
     return toServiceError(e);
   }

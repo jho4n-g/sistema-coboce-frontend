@@ -1,6 +1,14 @@
 import { api } from '../../api';
 import { toServiceError } from '../../error';
 
+export const getFormato = async () => {
+  try {
+    const data = await api.get('/produccion/formato/');
+    return data.data;
+  } catch (e) {
+    return toServiceError(e);
+  }
+};
 export const getObjs = async () => {
   try {
     const data = await api.get('/produccion/formato/detalles');

@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 //
 import { getObjs } from '@service/Produccion/Turno.services';
-import { getObjsPrensa } from '@service/Produccion/Secciones/Prensa.services.js';
+import { getObjsUnidos as getLineas } from '@service/Produccion/Secciones/Lineas.services';
 import Select from '@components/Select';
 
 const NuevaFilaTabla = () => ({
@@ -62,10 +62,8 @@ export default function BarbotinaModal({
   const [turnoError, setTurnoError] = useState(null);
   const [turnoId, setTurnoId] = useState(null);
 
-  const [prensaError, setPrensaError] = useState();
-  const [prensaId, setPrensaId] = useState([]);
-
-  const [detallesPrensas, setDetallesPrensas] = useState([]);
+  const [lineaId, setLineaId] = useState(null);
+  const [lineaError, setLineaError] = useState('');
 
   useEffect(() => {
     if (!open || !id) return; // evita correr si no aplica
@@ -82,6 +80,7 @@ export default function BarbotinaModal({
         if (data?.ok) {
           setForm(data.dato ?? {});
           setTurnoId(data?.dato?.turno_id ?? '');
+          setLineaId(data?.linea_id ?? '');
         } else toast.error(data?.message || 'No se pudo cargar el registro');
       } catch (e) {
         if (active) toast.error(e?.message || 'Error del servidor');
@@ -115,7 +114,7 @@ export default function BarbotinaModal({
     setForm((f) => ({
       ...f,
       observaciones_prensado_secado: f.observaciones_prensado_secado.filter(
-        (_, i) => i !== index
+        (_, i) => i !== index,
       ),
     }));
   };
@@ -223,17 +222,22 @@ export default function BarbotinaModal({
     } else {
       setTurnoError('');
     }
+    if (!lineaId) {
+      setTurnoError('Selecciona un turno');
+    } else {
+      setTurnoError('');
+    }
     const result = datosPrensadoSecado.safeParse(form);
     if (!result.success) {
       const { fieldErrors } = result.error.flatten();
 
       const tablaErrors = extractArrayFieldErrors(
         result.error,
-        'tabla_prensado_secado'
+        'tabla_prensado_secado',
       );
       const tablaErrorsSilo = extractArrayFieldErrors(
         result.error,
-        'tabla_silos_usado'
+        'tabla_silos_usado',
       );
       setTablaSiloError(tablaErrorsSilo);
       setTablaError(tablaErrors);
@@ -241,7 +245,7 @@ export default function BarbotinaModal({
       toast.error('Datos incorrectos');
       return;
     } else {
-      const data = { turno_id: turnoId, ...result.data };
+      const data = { turno_id: turnoId, linea_id: lineaId, ...result.data };
       handleSave(data);
     }
   };
@@ -326,6 +330,19 @@ export default function BarbotinaModal({
                     error={error.supervisor_turno}
                   />
                 </div>
+                <div className="md:col-span-1 lg:col-span-3">
+                  <Select
+                    label="Línea"
+                    value={lineaId}
+                    onChange={(v) => {
+                      setLineaId(v);
+                      setLineaError('');
+                    }}
+                    placeholder="Selecciona una línea"
+                    getDatos={getLineas}
+                    error={lineaError}
+                  />
+                </div>
                 <div className="md:col-span-1 lg:col-span-6">
                   <InputField
                     label="N° prensa"
@@ -393,7 +410,7 @@ export default function BarbotinaModal({
                             <XMarkIcon className="h-4 w-4" />
                           </button>
                         </span>
-                      )
+                      ),
                     )}
                   </div>
                 </div>
@@ -677,7 +694,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'masa_molde_uno',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.masa_molde_uno}
@@ -693,7 +710,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'masa_molde_dos',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.masa_molde_dos}
@@ -709,7 +726,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'masa_molde_tres',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.masa_molde_tres}
@@ -725,7 +742,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'masa_molde_cuatro',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.masa_molde_cuatro}
@@ -741,7 +758,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'masa_molde_cinco',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.masa_molde_cinco}
@@ -757,7 +774,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'masa_molde_seis',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.masa_molde_seis}
@@ -773,7 +790,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'masa_molde_siete',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.masa_molde_siete}
@@ -789,7 +806,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_uno_a',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_uno_a}
@@ -805,7 +822,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_uno_b',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_uno_b}
@@ -821,7 +838,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_dos_a',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_dos_a}
@@ -837,7 +854,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_dos_b',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_dos_b}
@@ -853,7 +870,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_tres_a',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_tres_a}
@@ -869,7 +886,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_tres_b',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_tres_b}
@@ -885,7 +902,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_cuatro_a',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_cuatro_a}
@@ -901,7 +918,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_cuatro_b',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_cuatro_b}
@@ -917,7 +934,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_cinco_a',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_cinco_a}
@@ -933,7 +950,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_cinco_b',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_cinco_b}
@@ -949,7 +966,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_seis_a',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_seis_a}
@@ -965,7 +982,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_seis_b',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_seis_b}
@@ -981,7 +998,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_siete_a',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_siete_a}
@@ -997,7 +1014,7 @@ export default function BarbotinaModal({
                             setCargaTabla(
                               idx,
                               'espesor_molde_siete_b',
-                              e.target.value
+                              e.target.value,
                             );
                           }}
                           error={!!tablaError[idx]?.espesor_molde_siete_b}

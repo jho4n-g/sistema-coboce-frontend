@@ -82,7 +82,7 @@ export default function SeleccionDetalleModal({
           return;
         }
 
-        const datos = resp?.datos ?? {};
+        const datos = resp?.dato ?? {};
 
         setData({
           ...initialView,

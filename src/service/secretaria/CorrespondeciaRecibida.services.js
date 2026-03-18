@@ -44,10 +44,14 @@ export const createDocuments = async (payload) => {
     fd.append('cite', payload.cite);
     fd.append('referencia', payload.referencia);
     fd.append('emitido_por', payload.emitido_por);
+    fd.append('derivado_a', payload.derivado_a);
 
-    fd.append('file', payload.file);
+    fd.append('pdf', payload.file);
 
-    const res = await api.post(`/secretaria/correspondencia`, fd);
+    const res = await api.post(
+      `/secretaria/correspondencia/area/secretaria`,
+      fd,
+    );
     return res.data;
   } catch (e) {
     return toServiceError(e);
@@ -62,9 +66,12 @@ export const updatedDocument = async (id, payload) => {
     fd.append('referencia', payload.referencia);
     fd.append('emitido_por', payload.emitido_por);
     fd.append('derivado_a', payload.derivado_a);
-    fd.append('file', payload.file);
-
-    const res = await api.put(`/secretaria/correspondencia/${id}`, fd);
+    fd.append('pdf', payload.file);
+    console.log(fd);
+    const res = await api.put(
+      `/secretaria/correspondencia/${id}/area/secretaria`,
+      fd,
+    );
     return res.data;
   } catch (e) {
     return toServiceError(e);
