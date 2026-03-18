@@ -21,6 +21,7 @@ import { PoliticaServices as PoliticaAmbiental } from '../../service/Documentos/
 import { ProcesosServices as ProcedimientoAmbiental } from '../../service/Documentos/gestionAmbiental/Procedimiento.js';
 import { FrasesServicios } from '../../service/Documentos/Frases.services.js';
 import { CumpleañosMesServices } from '../../service/gestionCumpleaños/CumpleañosMes.services.js';
+import { EnfermedadesMesServices } from '../../service/OficinaMedica/EnfermedadesMes.services.js';
 import { toast } from 'react-toastify';
 
 import { normalizarFecha } from '../../helpers/normalze.helpers.js';
@@ -50,7 +51,9 @@ export default function DocumentManagerPageTW() {
 
   const [fraseDia, SetFraseDia] = useState(null);
   const [cumpleanerosMes, setCumpleanosMes] = useState(null);
+  const [dataEnfermedad, setDataEnfermedad] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [openEnfermedadModal, setOpenEnfermedadModal] = useState(false);
 
   const debouncedQuery = useDebouncedValue(searchQuery, 350);
   useEffect(() => {
@@ -76,8 +79,17 @@ export default function DocumentManagerPageTW() {
             fraseRes.message || 'No se pudo cargar los cumpleañeros',
           );
         }
-        console.log(cumpleRes.data);
+
         setCumpleanosMes(cumpleRes?.data || []);
+        const enfermedadRes =
+          await EnfermedadesMesServices.getEnfermedadesPeriodo();
+        console.log(enfermedadRes);
+        if (!enfermedadRes.ok) {
+          throw new Error(
+            enfermedadRes.message || 'No se pudo cargar la frase',
+          );
+        }
+        setDataEnfermedad(enfermedadRes?.data || []);
       } catch (error) {
         toast.error(error.message || 'Erro al cargar el comunicado');
       }
@@ -86,19 +98,28 @@ export default function DocumentManagerPageTW() {
     loadComunicado();
   }, []);
 
-  // ✅ Frase del día (rotación simple por día)
+  const { total, top, pct, resto } = useMemo(() => {
+    const lista = Array.isArray(dataEnfermedad) ? dataEnfermedad : [];
 
-  // ✅ NUEVO: Enfermos por tipo de enfermedad (conéctalo a tu API luego)
-  const enfermosPorTipo = useMemo(
-    () => [
-      { tipo: 'Resfriado / Gripe', total: 18 },
-      { tipo: 'Gastrointestinal', total: 10 },
-      { tipo: 'Lesión / Accidente', total: 6 },
-      { tipo: 'Alergia', total: 4 },
-      { tipo: 'Otros', total: 2 },
-    ],
-    [],
-  );
+    const totalCasos = lista.reduce((acc, item) => acc + (item.casos || 0), 0);
+
+    const ordenadas = [...lista].sort(
+      (a, b) => (b.casos || 0) - (a.casos || 0),
+    );
+    const topItem = ordenadas[0] || null;
+    const porcentaje = totalCasos
+      ? Math.round(((topItem?.casos || 0) / totalCasos) * 100)
+      : 0;
+
+    return {
+      total: totalCasos,
+      top: topItem,
+      pct: porcentaje,
+      resto: ordenadas.slice(1),
+    };
+  }, [dataEnfermedad]);
+
+  // ✅ Frase del día (rotación simple por día)
 
   const tabsConfig = useMemo(
     () => ({
@@ -387,7 +408,7 @@ export default function DocumentManagerPageTW() {
         <main className="mx-auto max-w-8xl px-4 pb-12 pt-6 md:px-6 md:pb-16">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
             {/* IZQUIERDA */}
-            <section className="min-w-0 h-232 overflow-hidden">
+            <section className="min-w-0  ">
               <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h2 className="text-lg font-extrabold text-slate-900">
@@ -495,75 +516,61 @@ export default function DocumentManagerPageTW() {
 
                 {/* ✅ Enfermos por tipo */}
                 <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(2,6,23,0.08)]">
-                  {(() => {
-                    const total = enfermosPorTipo.reduce(
-                      (acc, x) => acc + x.total,
-                      0,
-                    );
-                    const top = [...enfermosPorTipo].sort(
-                      (a, b) => b.total - a.total,
-                    )[0];
-                    const pct = total
-                      ? Math.round((top?.total / total) * 100)
-                      : 0;
-
-                    return (
-                      <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur ring-1 ring-white/10 shadow-[0_12px_40px_rgba(2,6,23,0.25)]">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-900">
-                              Salud del mes
-                            </p>
-                            <h3 className="mt-1 text-lg font-extrabold text-slate-900">
-                              Enfermedad más frecuente
-                            </h3>
-                            <p className="mt-1 text-sm text-slate-900">
-                              {top
-                                ? 'Top 1 por cantidad de casos.'
-                                : 'Sin datos aún.'}
-                            </p>
-                          </div>
-
-                          <span className="shrink-0 rounded-full bg-white/15 px-3 py-1 text-xs font-extrabold text-white ring-1 ring-white/20">
-                            {top ? `${top.total} casos` : '—'}
-                          </span>
-                        </div>
-
-                        <div className="mt-4 rounded-xl bg-linear-to-r from-emerald-700/80 to-slate-700/80 p-4 ring-1 ring-white/10">
-                          <p className="truncate text-base font-extrabold text-white">
-                            {top?.tipo || 'No disponible'}
-                          </p>
-
-                          <div className="mt-3 flex items-center justify-between text-xs font-semibold text-white/80">
-                            <span>Participación</span>
-                            <span>{top ? `${pct}%` : '0%'}</span>
-                          </div>
-
-                          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/25">
-                            <div
-                              className="h-full rounded-full bg-white"
-                              style={{ width: `${pct}%` }}
-                              aria-label={`Porcentaje ${pct}%`}
-                            />
-                          </div>
-
-                          <p className="mt-3 text-xs text-white/75">
-                            Total mes:{' '}
-                            <span className="font-bold text-white">
-                              {total}
-                            </span>{' '}
-                            casos
-                          </p>
-                          <button
-                            type="button"
-                            className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-emerald-900"
-                          >
-                            Ver detalles
-                          </button>
-                        </div>
+                  <div className="rounded-2xl p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Salud del mes
+                        </p>
+                        <h3 className="mt-1 text-lg font-extrabold text-slate-900">
+                          Enfermedad más frecuente
+                        </h3>
+                        <p className="mt-1 text-sm text-slate-600">
+                          {top
+                            ? 'Top 1 por cantidad de casos.'
+                            : 'Sin datos aún.'}
+                        </p>
                       </div>
-                    );
-                  })()}
+
+                      <span className="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-800">
+                        {top ? `${top.casos} casos` : '—'}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 rounded-xl bg-linear-to-r from-emerald-700/80 to-slate-700/80 p-4 ring-1 ring-white/10">
+                      <p className="truncate text-base font-extrabold text-white">
+                        {top?.titulo || 'No disponible'}
+                      </p>
+
+                      <div className="mt-3 flex items-center justify-between text-xs font-semibold text-white/80">
+                        <span>Participación</span>
+                        <span>{top ? `${pct}%` : '0%'}</span>
+                      </div>
+
+                      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/25">
+                        <div
+                          className="h-full rounded-full bg-white"
+                          style={{ width: `${pct}%` }}
+                          aria-label={`Porcentaje ${pct}%`}
+                        />
+                      </div>
+
+                      <p className="mt-3 text-xs text-white/80">
+                        Total mes:{' '}
+                        <span className="font-bold text-white">{total}</span>{' '}
+                        casos
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => setOpenEnfermedadModal(true)}
+                        disabled={!dataEnfermedad?.length}
+                        className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-emerald-900"
+                      >
+                        Ver detalles
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </aside>
@@ -659,7 +666,92 @@ export default function DocumentManagerPageTW() {
               <button
                 type="button"
                 onClick={() => setOpenModal(false)}
-                className="w-full rounded-xl bg-slate-800 py-2.5 text-sm font-bold text-white transition hover:bg-slate-900"
+                className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-emerald-900"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {openEnfermedadModal && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setOpenEnfermedadModal(false)}
+          />
+
+          <div className="relative z-10 w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+              <div>
+                <h4 className="text-lg font-extrabold text-slate-900">
+                  Detalle de enfermedades
+                </h4>
+                <p className="text-sm text-slate-500">
+                  Casos registrados del mes
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setOpenEnfermedadModal(false)}
+                className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto px-5 py-4">
+              {dataEnfermedad.length === 0 ? (
+                <p className="text-sm text-slate-500">
+                  No hay datos disponibles.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {[top, ...resto].filter(Boolean).map((item, index) => {
+                    const porcentaje = total
+                      ? Math.round(((item.casos || 0) / total) * 100)
+                      : 0;
+
+                    return (
+                      <div
+                        key={`${item.titulo}-${index}`}
+                        className="rounded-xl border border-slate-200 p-4"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate font-bold text-slate-900">
+                              {item.titulo}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {porcentaje}% del total
+                            </p>
+                          </div>
+
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
+                            {item.casos} casos
+                          </span>
+                        </div>
+
+                        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200">
+                          <div
+                            className="h-full rounded-full bg-emerald-600"
+                            style={{ width: `${porcentaje}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end border-t border-slate-200 px-5 py-4">
+              <button
+                type="button"
+                onClick={() => setOpenEnfermedadModal(false)}
+                className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-emerald-900"
               >
                 Cerrar
               </button>

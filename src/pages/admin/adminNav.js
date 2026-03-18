@@ -287,6 +287,11 @@ export const adminNav = [
         to: '/admin/medicina/inventario',
         icon: BeakerIcon,
       },
+      {
+        label: 'Enfermedad mes',
+        to: '/admin/medicina/enfermedad',
+        icon: BeakerIcon,
+      },
     ],
   },
 

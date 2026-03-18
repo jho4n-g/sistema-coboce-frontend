@@ -111,27 +111,20 @@ export default function Novedades({
   };
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
-      {' '}
       {loading ? (
         <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-white py-10 shadow-sm">
-          {' '}
           <div className="flex items-center gap-3">
-            {' '}
-            <span className="h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-green-700" />{' '}
+            <span className="h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-green-700" />
             <p className="text-sm font-semibold text-slate-700">
-              {' '}
-              Cargando datos…{' '}
-            </p>{' '}
-          </div>{' '}
+              Cargando datos…
+            </p>
+          </div>
         </div>
       ) : (filteredDocumentos?.length ?? 0) > 0 ? (
         <>
-          {' '}
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-            {' '}
             {paginatedDocs.map((r) => (
               <div key={r.id} className="min-w-0">
-                {' '}
                 <DocumentCard
                   id={r.id}
                   area={r.area}
@@ -142,35 +135,31 @@ export default function Novedades({
                   tipo={r.tipo}
                   titulo={r.titulo}
                   services={services}
-                />{' '}
+                />
               </div>
-            ))}{' '}
-          </div>{' '}
+            ))}
+          </div>
           <div className="mt-6">
-            {' '}
             <PaginationBar
               filteredLength={filteredDocumentos.length}
               page={pageDocumentos}
               pageSize={rowsDocPage}
               totalPages={totalPagesDocumentos}
               onPageChange={(newPage) => handleChangePage(null, newPage)}
-            />{' '}
-          </div>{' '}
+            />
+          </div>
         </>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-          {' '}
-          <MagnifyingGlassIcon className="h-8 w-8 text-slate-400" />{' '}
+          <MagnifyingGlassIcon className="h-8 w-8 text-slate-400" />
           <p className="mt-3 text-sm font-semibold text-slate-700">
-            {' '}
-            No se encontraron resultados{' '}
-          </p>{' '}
+            No se encontraron resultados
+          </p>
           <p className="mt-1 text-xs text-slate-500">
-            {' '}
-            Prueba cambiando los filtros o el término de búsqueda.{' '}
-          </p>{' '}
+            Prueba cambiando los filtros o el término de búsqueda.
+          </p>
         </div>
-      )}{' '}
+      )}
     </div>
   );
 }
