@@ -13,7 +13,6 @@ export default function DocumentCard({
   fecha,
   titulo,
   codigo,
-  revision,
   descripcion,
   area,
   tipo,
@@ -169,8 +168,8 @@ export default function DocumentCard({
 
   return (
     <>
-      <article className="group relative w-full overflow-hidden rounded-[2rem] border border-slate-200/10 bg-slate-900 shadow-[0_20px_60px_rgba(0,0,0,0.18)]">
-        <div className="relative h-[320px] w-full overflow-hidden md:h-[360px]">
+      <article className="group relative w-full overflow-hidden rounded-4xl border border-slate-200/10 bg-slate-900 shadow-[0_20px_60px_rgba(0,0,0,0.18)]">
+        <div className="relative h-80 w-full overflow-hidden md:h-80">
           <img
             src={imageUrl}
             alt={`Portada de ${titulo || 'documento'}`}

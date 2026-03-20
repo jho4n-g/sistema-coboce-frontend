@@ -292,6 +292,11 @@ export const adminNav = [
         to: '/admin/medicina/enfermedad',
         icon: BeakerIcon,
       },
+      {
+        label: 'Fechas oms',
+        to: '/admin/medicina/oms',
+        icon: BeakerIcon,
+      },
     ],
   },
 

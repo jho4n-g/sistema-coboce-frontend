@@ -519,9 +519,11 @@
 //   );
 // }
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { PauseIcon, PlayIcon } from '@heroicons/react/24/solid';
+import { toast } from 'react-toastify';
+import { FechasOmsServices as services } from '../service/OficinaMedica/FechasOms.services';
 
 function getNextIndex(currentIndex, total) {
   if (total <= 0) return 0;
@@ -565,63 +567,41 @@ if (typeof window !== 'undefined') {
 }
 
 export default function OmsTimelineCarouselMockup() {
-  const eventos = useMemo(
-    () => [
-      {
-        fecha: '7 de abril',
-        titulo: 'Día Mundial de la Salud',
-        descripcion:
-          'Campaña global con enfoque en prevención, acceso a salud y bienestar para todas las personas.',
-        imagen:
-          'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=1200&q=80',
-      },
-      {
-        fecha: '31 de mayo',
-        titulo: 'Día Mundial Sin Tabaco',
-        descripcion:
-          'Concienciación sobre los riesgos del consumo de tabaco y la importancia de políticas públicas de salud.',
-        imagen:
-          'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80',
-      },
-      {
-        fecha: '14 de junio',
-        titulo: 'Día Mundial del Donante de Sangre',
-        descripcion:
-          'Reconocimiento a donantes voluntarios y promoción de donaciones seguras y regulares.',
-        imagen:
-          'https://images.unsplash.com/photo-1615461066841-6116e61058f4?auto=format&fit=crop&w=1200&q=80',
-      },
-      {
-        fecha: '10 de octubre',
-        titulo: 'Salud Mental',
-        descripcion:
-          'Visibilización del bienestar emocional, la prevención y el acompañamiento integral de la salud mental.',
-        imagen:
-          'https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=1200&q=80',
-      },
-    ],
-    [],
-  );
-
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [datoOms, setDatoOms] = useState(null);
 
   useEffect(() => {
-    if (!isPlaying || eventos.length <= 1) return;
+    (async () => {
+      try {
+        const data = await services.getFechasCercanas();
+
+        if (data?.ok) {
+          setDatoOms(data.data ?? []);
+        } else {
+          toast.error(data?.message || 'No se pudo cargar el registro');
+        }
+      } catch (e) {
+        toast.error(e?.message || 'Error del servidor');
+      }
+    })();
+  }, []);
+  useEffect(() => {
+    if (!isPlaying || datoOms?.length <= 1) return;
 
     const interval = window.setInterval(() => {
-      setActiveIndex((prev) => getNextIndex(prev, eventos.length));
+      setActiveIndex((prev) => getNextIndex(prev, datoOms?.length));
     }, 3500);
 
     return () => window.clearInterval(interval);
-  }, [isPlaying, eventos.length]);
+  }, [isPlaying, datoOms?.length]);
 
   const irAnterior = () => {
-    setActiveIndex((prev) => getPrevIndex(prev, eventos.length));
+    setActiveIndex((prev) => getPrevIndex(prev, datoOms?.length));
   };
 
   const irSiguiente = () => {
-    setActiveIndex((prev) => getNextIndex(prev, eventos.length));
+    setActiveIndex((prev) => getNextIndex(prev, datoOms?.length));
   };
 
   return (
@@ -635,24 +615,11 @@ export default function OmsTimelineCarouselMockup() {
 
       <div className="bg-linear-to-br from-sky-50 via-white to-cyan-50 p-4 md:p-8">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <span className="inline-flex rounded-full bg-sky-100 px-4 py-1 text-sm font-medium text-sky-700">
-                Mockup UI · React + Tailwind
-              </span>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
-                Carrusel en movimiento de fechas OMS
-              </h1>
-              <p className="mt-3 max-w-3xl text-base text-slate-600 md:text-lg">
-                Propuesta visual con autoplay, transición suave, tarjetas
-                destacadas e indicadores para fechas importantes de salud.
-              </p>
-            </div>
-
+          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-end">
             <div className="flex items-center gap-3">
               <button
                 onClick={irAnterior}
-                className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:bg-slate-300"
                 type="button"
                 aria-label="Anterior"
               >
@@ -661,7 +628,7 @@ export default function OmsTimelineCarouselMockup() {
 
               <button
                 onClick={() => setIsPlaying((prev) => !prev)}
-                className="inline-flex items-center gap-2 rounded-2xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-sky-700"
+                className="inline-flex items-center gap-2 rounded-2xl bg-green-800 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-green-900"
                 type="button"
                 aria-label={
                   isPlaying ? 'Pausar carrusel' : 'Reproducir carrusel'
@@ -677,7 +644,7 @@ export default function OmsTimelineCarouselMockup() {
 
               <button
                 onClick={irSiguiente}
-                className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:bg-slate-300"
                 type="button"
                 aria-label="Siguiente"
               >
@@ -692,11 +659,11 @@ export default function OmsTimelineCarouselMockup() {
                 className="flex transition-transform duration-700 ease-in-out"
                 style={{ transform: `translateX(-${activeIndex * 100}%)` }}
               >
-                {eventos.map((evento) => (
+                {datoOms?.map((evento) => (
                   <div key={evento.titulo} className="min-w-full">
                     <div className="relative h-105 sm:h-115 lg:h-130 overflow-hidden">
                       <img
-                        src={evento.imagen}
+                        src={services.getImageUrl(evento.id)}
                         alt={evento.titulo}
                         className="h-full w-full object-cover"
                       />
@@ -738,12 +705,12 @@ export default function OmsTimelineCarouselMockup() {
                   Fechas destacadas
                 </h3>
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                  {activeIndex + 1}/{eventos.length}
+                  {activeIndex + 1}/{datoOms?.length}
                 </span>
               </div>
 
               <div className="space-y-4">
-                {eventos.map((evento, index) => {
+                {datoOms?.map((evento, index) => {
                   const activo = index === activeIndex;
 
                   return (
@@ -759,7 +726,7 @@ export default function OmsTimelineCarouselMockup() {
                     >
                       <div className="flex items-start gap-4">
                         <img
-                          src={evento.imagen}
+                          src={services.getImageUrl(evento.id)}
                           alt={evento.titulo}
                           className="h-20 w-20 rounded-2xl object-cover"
                         />
@@ -782,7 +749,7 @@ export default function OmsTimelineCarouselMockup() {
               </div>
 
               <div className="mt-6 flex items-center justify-center gap-2">
-                {eventos.map((evento, index) => (
+                {datoOms?.map((evento, index) => (
                   <button
                     key={evento.titulo}
                     onClick={() => setActiveIndex(index)}
@@ -809,3 +776,115 @@ export default function OmsTimelineCarouselMockup() {
     </>
   );
 }
+
+// import { useState } from 'react';
+// const meses = [
+//   { value: 1, label: 'Enero' },
+//   { value: 2, label: 'Febrero' },
+//   { value: 3, label: 'Marzo' },
+//   { value: 4, label: 'Abril' },
+//   { value: 5, label: 'Mayo' },
+//   { value: 6, label: 'Junio' },
+//   { value: 7, label: 'Julio' },
+//   { value: 8, label: 'Agosto' },
+//   { value: 9, label: 'Septiembre' },
+//   { value: 10, label: 'Octubre' },
+//   { value: 11, label: 'Noviembre' },
+//   { value: 12, label: 'Diciembre' },
+// ];
+
+// export default function FormFechaOms() {
+//   const [formData, setFormData] = useState({
+//     dia: '',
+//     mes: '',
+//     titulo: '',
+//     descripcion: '',
+//     pathImagen: '',
+//   });
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+
+//     setFormData((prev) => ({
+//       ...prev,
+//       [name]: name === 'dia' || name === 'mes' ? Number(value) : value,
+//     }));
+//   };
+
+//   return (
+//     <div className="grid gap-4">
+//       <div>
+//         <label className="mb-1 block text-sm font-medium text-slate-700">
+//           Día
+//         </label>
+//         <input
+//           type="number"
+//           name="dia"
+//           value={formData.dia}
+//           onChange={handleChange}
+//           min="1"
+//           max="31"
+//           className="w-full rounded-xl border border-slate-300 px-4 py-2 outline-none focus:border-sky-500"
+//         />
+//       </div>
+
+//       <div>
+//         <label className="mb-1 block text-sm font-medium text-slate-700">
+//           Mes
+//         </label>
+//         <select
+//           name="mes"
+//           value={formData.mes}
+//           onChange={handleChange}
+//           className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2 outline-none focus:border-sky-500"
+//         >
+//           <option value="">Seleccione un mes</option>
+//           {meses.map((mes) => (
+//             <option key={mes.value} value={mes.value}>
+//               {mes.label}
+//             </option>
+//           ))}
+//         </select>
+//       </div>
+
+//       <div>
+//         <label className="mb-1 block text-sm font-medium text-slate-700">
+//           Título
+//         </label>
+//         <input
+//           type="text"
+//           name="titulo"
+//           value={formData.titulo}
+//           onChange={handleChange}
+//           className="w-full rounded-xl border border-slate-300 px-4 py-2 outline-none focus:border-sky-500"
+//         />
+//       </div>
+
+//       <div>
+//         <label className="mb-1 block text-sm font-medium text-slate-700">
+//           Descripción
+//         </label>
+//         <textarea
+//           name="descripcion"
+//           value={formData.descripcion}
+//           onChange={handleChange}
+//           rows={4}
+//           className="w-full rounded-xl border border-slate-300 px-4 py-2 outline-none focus:border-sky-500"
+//         />
+//       </div>
+
+//       <div>
+//         <label className="mb-1 block text-sm font-medium text-slate-700">
+//           Imagen
+//         </label>
+//         <input
+//           type="text"
+//           name="pathImagen"
+//           value={formData.pathImagen}
+//           onChange={handleChange}
+//           className="w-full rounded-xl border border-slate-300 px-4 py-2 outline-none focus:border-sky-500"
+//         />
+//       </div>
+//     </div>
+//   );
+// }

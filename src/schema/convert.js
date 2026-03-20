@@ -293,3 +293,25 @@ export const reqArray = (fieldName = 'IDs') =>
       ]),
     )
     .min(1, `Debes seleccionar al menos un ${fieldName}`);
+
+export const reqMes = (label = 'mes') => {
+  return z.coerce
+    .number({
+      required_error: `Se requiere ${label}`,
+      invalid_type_error: `El campo ${label} debe ser un número`,
+    })
+    .int(`El campo ${label} debe ser un número entero`)
+    .min(1, `El campo ${label} debe ser mayor o igual a 1`)
+    .max(12, `El campo ${label} debe ser menor o igual a 12`);
+};
+
+export const reqDia = (label = 'día') => {
+  return z.coerce
+    .number({
+      required_error: `Se requiere ${label}`,
+      invalid_type_error: `El campo ${label} debe ser un número`,
+    })
+    .int(`El campo ${label} debe ser un número entero`)
+    .min(1, `El campo ${label} debe ser mayor o igual a 1`)
+    .max(31, `El campo ${label} debe ser menor o igual a 31`);
+};

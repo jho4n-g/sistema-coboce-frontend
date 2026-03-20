@@ -9,6 +9,7 @@ import ClienteLayout from './layouts/ClienteLayout.jsx';
 //CONSULTORIO MEDICO
 import InventarioMedicina from './pages/admin/OficinaMedica/Inventario/InventarioMedicina.jsx';
 import EnfermedadMes from './pages/admin/OficinaMedica/EnfermedadMes/EnfermedadMes.jsx';
+import FechasOms from './pages/admin/OficinaMedica/FechasOms/FechasOms.jsx';
 //SECRETARIA
 import ContratoAdmin from './pages/admin/Secretaria/Contrato/Contrato.jsx';
 import CorrespondenciaRecibida from './pages/admin/Secretaria/CorrespondenciaRecibida/CorrespondenciaRecibida.jsx';
@@ -254,6 +255,7 @@ function App() {
               element={<InventarioMedicina />}
             />
             <Route path="medicina/enfermedad" element={<EnfermedadMes />} />
+            <Route path="medicina/oms" element={<FechasOms />} />
             {/* Informe Gerente */}
             <Route path="informe-gerente" element={<InformeGerente />} />
             {/****Documeto */}

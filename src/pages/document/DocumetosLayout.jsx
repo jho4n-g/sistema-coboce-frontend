@@ -23,6 +23,7 @@ import { FrasesServicios } from '../../service/Documentos/Frases.services.js';
 import { CumpleañosMesServices } from '../../service/gestionCumpleaños/CumpleañosMes.services.js';
 import { EnfermedadesMesServices } from '../../service/OficinaMedica/EnfermedadesMes.services.js';
 import { toast } from 'react-toastify';
+import CarrucelMovimiento from '../../carruceImagenes/CarrucelMovimiento.jsx';
 
 import { normalizarFecha } from '../../helpers/normalze.helpers.js';
 function useDebouncedValue(value, delay = 350) {
@@ -575,8 +576,10 @@ export default function DocumentManagerPageTW() {
               </div>
             </aside>
           </div>
+          <CarrucelMovimiento />
         </main>
       </div>
+
       {pdfUrl && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-5">
           <div
