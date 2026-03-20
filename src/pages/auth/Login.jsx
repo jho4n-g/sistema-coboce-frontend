@@ -46,11 +46,11 @@ export default function Login() {
     try {
       setLoading(true);
       const res = await LoginUser(data);
+      console.log(res);
       if (res.ok) {
         toast.success('Inicio de sesión exitoso');
         localStorage.setItem('token', res.token);
         setAuth(res.user);
-        console.log(res.user);
         setForm(initialForm);
         if (res.user.roles[0].nombre == 'admin') {
           navigate('/admin/');

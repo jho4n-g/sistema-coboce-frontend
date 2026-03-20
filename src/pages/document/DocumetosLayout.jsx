@@ -61,7 +61,6 @@ export default function DocumentManagerPageTW() {
     const loadComunicado = async () => {
       try {
         const res = await GeneralDocumentos.getUltimaNoticia();
-        console.log(res);
         if (!res?.ok || !res?.blob) return;
 
         const url = URL.createObjectURL(res.blob);
@@ -84,7 +83,6 @@ export default function DocumentManagerPageTW() {
         setCumpleanosMes(cumpleRes?.data || []);
         const enfermedadRes =
           await EnfermedadesMesServices.getEnfermedadesPeriodo();
-        console.log(enfermedadRes);
         if (!enfermedadRes.ok) {
           throw new Error(
             enfermedadRes.message || 'No se pudo cargar la frase',
@@ -393,7 +391,6 @@ export default function DocumentManagerPageTW() {
                 )}
               </div>
 
-              {/* DERECHA: enfermedad más frecuente */}
               <div className="lg:pt-2 lg:justify-self-end lg:translate-x-8 xl:translate-x-60">
                 <img
                   src={LogoCeramica}
@@ -480,9 +477,7 @@ export default function DocumentManagerPageTW() {
                             <p className="truncate text-sm font-bold text-slate-900">
                               {p.nombre_completo}
                             </p>
-                            <p className="text-xs text-slate-500">
-                              {normalizarFecha(p.fecha)}
-                            </p>
+                            <p className="text-xs text-slate-500">{p.fecha}</p>
                           </div>
                           <div className="ml-3 shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-extrabold text-emerald-800 ring-1 ring-emerald-100">
                             {p.edad}
@@ -524,7 +519,7 @@ export default function DocumentManagerPageTW() {
                           Salud del mes
                         </p>
                         <h3 className="mt-1 text-lg font-extrabold text-slate-900">
-                          Enfermedad más frecuente
+                          Informe medico mensual
                         </h3>
                         <p className="mt-1 text-sm text-slate-600">
                           {top

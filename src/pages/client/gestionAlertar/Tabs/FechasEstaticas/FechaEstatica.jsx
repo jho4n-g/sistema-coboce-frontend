@@ -2,8 +2,8 @@ import TablaRetutilizable from '@components/TablaReutilizable';
 import ConfirmModal from '@components/ConfirmModal';
 import { useState, useRef } from 'react';
 import { toast } from 'react-toastify';
-import { CumpleañosMesServices as services } from '../../../service/gestionCumpleaños/CumpleañosMes.services.js';
-import CumpleanosModal from './CumpleanosModal.jsx';
+import { FechaEstaticaServices as services } from '../../../../../service/gestionAlertas/FechaEstatica.services.js';
+import FechaEstaticaModal from './FechaEstaticaModal.jsx';
 
 const columnas = [
   {
@@ -15,8 +15,12 @@ const columnas = [
     key: 'mes',
   },
   {
-    label: 'Trabajador',
-    key: 'nombre_completo',
+    label: 'Titulo',
+    key: 'titulo',
+  },
+  {
+    label: 'Descripcion',
+    key: 'descripcion',
   },
 ];
 
@@ -158,7 +162,7 @@ export default function Frases() {
         onConfirm={hanldeDelete}
       />
 
-      <CumpleanosModal
+      <FechaEstaticaModal
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         onSave={handleOpenConfirmUpdate}
@@ -177,7 +181,7 @@ export default function Frases() {
         onClose={handleCloseConfirmUpdate}
         onConfirm={handleUpdate}
       />
-      <CumpleanosModal
+      <FechaEstaticaModal
         open={openModalCreate}
         onClose={() => setOpenModalCreate(false)}
         onSave={handleOpenModalConfirmCreate}

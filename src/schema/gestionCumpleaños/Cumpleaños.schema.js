@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { reqFecha, reqStr, reqEntero } from '../convert.js';
+import { reqStr, reqDia, reqMes } from '../convert.js';
 
 export const CumpleañosSchema = z.object({
-  nombre_completo: reqStr('Entregado por'),
-  fecha: reqFecha('Fecha'),
-  edad: reqEntero('Edad'),
+  nombre_completo: reqStr('Nombre completo'),
+  dia: reqDia('Dia'),
+  mes: reqMes('Mes'),
 });

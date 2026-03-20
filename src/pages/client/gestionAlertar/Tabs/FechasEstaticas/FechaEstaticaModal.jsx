@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { CumpleañosSchema as schema } from '../../../schema/gestionCumpleaños/Cumpleaños.schema.js';
+import { FechasEstaticasSchema as schema } from '../../../../../schema/auth/FechasEstaticas.schema.js';
 import InputField from '@components/InputField';
 import { toast } from 'react-toastify';
 
 const initialForm = () => ({
-  nombre_completo: '',
+  titulo: '',
+  descripcion: '',
   dia: '',
   mes: ',',
 });
@@ -187,12 +188,22 @@ export default function FrasesModal({
                 </div>
                 <div className="md:col-span-1 lg:col-span-6">
                   <InputField
-                    label="Nombre completo"
+                    label="Titulo"
                     type="text"
-                    name="nombre_completo"
-                    value={form?.nombre_completo || ''}
+                    name="titulo"
+                    value={form?.titulo || ''}
                     onChange={updateBase}
-                    error={error.nombre_completo}
+                    error={error.titulo}
+                  />
+                </div>
+                <div className="md:col-span-1 lg:col-span-6">
+                  <InputField
+                    label="Descripcion"
+                    type="text"
+                    name="descripcion"
+                    value={form?.descripcion || ''}
+                    onChange={updateBase}
+                    error={error.descripcion}
                   />
                 </div>
               </div>

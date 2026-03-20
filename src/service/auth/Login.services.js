@@ -12,7 +12,7 @@ export const LoginUser = async (datos) => {
 
 export const getMe = async (config) => {
   try {
-    const data = await api.get('/auth/me', config);
+    const data = await api.get('/me', config);
     return data.data;
   } catch (e) {
     return toServiceError(e);

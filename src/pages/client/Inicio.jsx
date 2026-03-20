@@ -1,8 +1,8 @@
-import Alertar from '../admin/gestionAlertas/Tabs/admin/Alertar';
+import TabAlerta from './gestionAlertar/TabAlerta';
 export default function Inicio() {
   return (
     <div className="px-10">
-      <Alertar />
+      <TabAlerta />
     </div>
   );
 }

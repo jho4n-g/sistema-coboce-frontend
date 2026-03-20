@@ -26,13 +26,13 @@ const AuthProvider = ({ children }) => {
       };
 
       try {
-        // const data = await getMe(config);
-        // if (data.ok) {
-        //   setAuth(data.user);
-        // } else {
-        //   toast.error(data.message);
-        //   setAuth(null);
-        // }
+        const data = await getMe(config);
+        if (data.ok) {
+          setAuth(data.user);
+        } else {
+          toast.error(data.message);
+          setAuth(null);
+        }
       } catch (error) {
         toast.error(error.message);
         setAuth(null);
