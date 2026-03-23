@@ -34,6 +34,19 @@ export default function Esmalte() {
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
 
   const tableRef = useRef(null);
+  //Detalles
+  const [openDetalles, setOpenDetalles] = useState(false);
+  const [idDetalles, setIdDetalles] = useState(null);
+
+  const handleDetalles = (id) => {
+    setIdDetalles(id);
+    setOpenDetalles(true);
+  };
+  const handleCloseDetalles = () => {
+    setIdDetalles(null);
+    setOpenDetalles(false);
+  };
+  //
 
   const hanldeOpenConfirmDelete = (id) => {
     setIdRow(id);
@@ -105,7 +118,7 @@ export default function Esmalte() {
         titulo="Produccion/ Control de la linea de esmaltacion"
         datosBusqueda={['fecha', 'turno', 'operador']}
         columnas={columnas}
-        handleDetail={() => {}}
+        handleDetail={handleDetalles}
         handleEdit={(id) => hanldeEdit(id)}
         hanldeDelete={hanldeOpenConfirmDelete}
         enableHorizontalScroll={false}
@@ -128,6 +141,7 @@ export default function Esmalte() {
         onSave={handleOpenConfirmUpdate}
         fetchById={getIdObj}
         id={idRow}
+        mode="edit"
       />
       <ConfirmModal
         open={openModalUpdate}
@@ -139,6 +153,13 @@ export default function Esmalte() {
         danger={false}
         onClose={handleCloseConfirmUpdate}
         onConfirm={handleSave}
+      />
+      <EsmalteModal
+        open={openDetalles}
+        onClose={handleCloseDetalles}
+        fetchById={getIdObj}
+        id={idDetalles}
+        mode="view"
       />
     </>
   );

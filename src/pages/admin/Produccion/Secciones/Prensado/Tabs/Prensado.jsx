@@ -35,6 +35,18 @@ export default function Prensado() {
   const [openModal, setOpenModal] = useState(false);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [payload, setPayload] = useState(null);
+  //Detalles
+  const [openDetalles, setOpenDetalles] = useState(false);
+  const [idDetalles, setIdDetalles] = useState(null);
+
+  const handleDetalles = (id) => {
+    setIdDetalles(id);
+    setOpenDetalles(true);
+  };
+  const handleCloseDetalles = () => {
+    setIdDetalles(null);
+    setOpenDetalles(false);
+  };
 
   const hanldeOpenConfirmDelete = (id) => {
     setIdRow(id);
@@ -113,7 +125,7 @@ export default function Prensado() {
         titulo="Produccion/ Control de proceso prensado y secado"
         datosBusqueda={['fecha', 'turno', 'operador']}
         columnas={columnas}
-        handleDetail={() => {}}
+        handleDetail={handleDetalles}
         handleEdit={hanldeEdit}
         hanldeDelete={hanldeOpenConfirmDelete}
         enableHorizontalScroll={false}
@@ -135,6 +147,7 @@ export default function Prensado() {
         onSave={handleOpenConfirmUpdate}
         fetchById={getIdObj}
         id={idRow}
+        mode="edit"
       />
       <ConfirmModal
         open={openModalUpdate}
@@ -146,6 +159,13 @@ export default function Prensado() {
         danger={false}
         onClose={handleCloseConfirmUpdate}
         onConfirm={handleSave}
+      />
+      <PrensadoModal
+        open={openDetalles}
+        onClose={handleCloseDetalles}
+        fetchById={getIdObj}
+        id={idDetalles}
+        mode="view"
       />
     </>
   );

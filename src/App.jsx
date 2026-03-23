@@ -97,224 +97,222 @@ import CarrucelMovimiento from './carruceImagenes/CarrucelMovimiento.jsx';
 //Cumpleaños
 import CumpleanosAdmin from './pages/admin/Cumpleaños/Cumpleanos.jsx';
 
+//Protected
+import AdminProtected from './providers/AdminProtected.provider.jsx';
+import ClienteProtected from './providers/ClienteProtected.provider.jsx';
+
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/*" element={<div>Error 404</div>} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/prueba" element={<Prueba />} />
-          <Route path="/admin" element={<AdminLayout />}>
-            {/**admin */}
-            <Route path="usuarios" element={<UsuarioAdmin />} />
-            <Route path="roles" element={<RolAdmin />} />
-            <Route path="gestion" element={<GestionAdmin />} />
-            {/* Produccion */}
-            <Route
-              path="produccion/barbotina"
-              element={<TabBarbotinaAdmin />}
-            />
-            <Route
-              path="produccion/atomizado"
-              element={<TabAtomizadoAdmin />}
-            />
-            <Route path="produccion/prensado" element={<TabPrensadoAdmin />} />
-            <Route path="produccion/esmalte" element={<TabEsmalteAdmin />} />
-            <Route
-              path="produccion/serigrafia"
-              element={<TabSerigrafiadoAdmin />}
-            />
-            <Route path="produccion/lineas" element={<LineasAdmin />} />
-            <Route path="produccion/formato" element={<FormatoAdmin />} />
-            <Route path="produccion/seleccion" element={<TabSeleccion />} />
-            <Route
-              path="produccion/informe-produccion"
-              element={<InformeProduccion />}
-            />
-            {/* Produccion Admistracion */}
-            <Route
-              path="produccion/administracion/no-conforme"
-              element={<ProductoNoConforme />}
-            />
-            <Route
-              path="produccion/administracion/calidad"
-              element={<Calidad />}
-            />
-            <Route
-              path="produccion/administracion/indice-consumo-agua"
-              element={<IndiceConsumoAgua />}
-            />
-            <Route
-              path="produccion/administracion/indice-consumo-bases"
-              element={<IndiceConsumoBases />}
-            />
-            <Route
-              path="produccion/administracion/indice-consumo-ee"
-              element={<IndiceConsumoEe />}
-            />
-            <Route
-              path="produccion/administracion/indice-consumo-engobe"
-              element={<IndiceConsumoEngobe />}
-            />
-            <Route
-              path="produccion/administracion/indice-consumo-esmalte"
-              element={<IndiceConsumoEsmalte />}
-            />
-            <Route
-              path="produccion/administracion/indice-consumo-gn"
-              element={<IndiceConsumoGn />}
-            />
-            <Route
-              path="produccion/administracion/indice-consumo-linea"
-              element={<IndiceConsumoLinea />}
-            />
-            <Route
-              path="produccion/administracion/indice-polvo-atomizado"
-              element={<IndicePolvoAtomizado />}
-            />
-            <Route
-              path="produccion/administracion/monitoreo-gases-combustion"
-              element={<MonitoreoGasesCombustion />}
-            />
-            <Route
-              path="produccion/administracion/produccion"
-              element={<Produccion />}
-            />
-            {/** administracion */}
-            <Route
-              path="administracion/atencion-consultorio"
-              element={<AtencionConsultorio />}
-            />
-            <Route
-              path="administracion/consultorio-dental"
-              element={<ConsultorioDental />}
-            />
-            <Route path="administracion/horas-extra" element={<HorasExtra />} />
-            <Route path="administracion/utilidad" element={<Utilidad />} />
-            <Route
-              path="administracion/generacion-residuos"
-              element={<GeneracionResiduos />}
-            />
-            <Route
-              path="administracion/indice-frecuencia"
-              element={<IndiceFrecuencia />}
-            />
-            <Route
-              path="administracion/indice-severidad"
-              element={<IndiceSeveridad />}
-            />
-            <Route
-              path="administracion/indice-acciones-correctivas"
-              element={<IndiceAccionesCorrectivas />}
-            />
-            <Route path="administracion/donaciones" element={<Donaciones />} />
-            <Route
-              path="administracion/evolucion-contado-credito"
-              element={<EvolucionContadoContraCredito />}
-            />
-            <Route
-              path="administracion/reclamo-producto-terminado"
-              element={<ReclamoProductoTerminado />}
-            />
-            {/** administracion */}
-            <Route
-              path="comercializacion/ingreso-venta-total"
-              element={<IngresoVentaTotal />}
-            />
-            <Route
-              path="comercializacion/precio-unitario"
-              element={<PrecioUnitario />}
-            />
-            <Route
-              path="comercializacion/venta-total"
-              element={<VentaTotal />}
-            />
-            {/** mantenimiento */}
-            <Route
-              path="mantenimiento/disponibilidad-linea"
-              element={<DisponibilidadPorLinea />}
-            />
-            {/** Documento */}
+    <BrowserRouter>
+      <Routes>
+        <Route path="/*" element={<div>Error 404</div>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/prueba" element={<Prueba />} />
+        <Route
+          path="/admin"
+          element={
+            <AuthProvider>
+              <AdminProtected />
+            </AuthProvider>
+          }
+        >
+          {/**admin */}
+          <Route index element={<UsuarioAdmin />} />
+          <Route path="usuarios" element={<UsuarioAdmin />} />
+          <Route path="roles" element={<RolAdmin />} />
+          <Route path="gestion" element={<GestionAdmin />} />
+          {/* Produccion */}
+          <Route path="produccion/barbotina" element={<TabBarbotinaAdmin />} />
+          <Route path="produccion/atomizado" element={<TabAtomizadoAdmin />} />
+          <Route path="produccion/prensado" element={<TabPrensadoAdmin />} />
+          <Route path="produccion/esmalte" element={<TabEsmalteAdmin />} />
+          <Route
+            path="produccion/serigrafia"
+            element={<TabSerigrafiadoAdmin />}
+          />
+          <Route path="produccion/lineas" element={<LineasAdmin />} />
+          <Route path="produccion/formato" element={<FormatoAdmin />} />
+          <Route path="produccion/seleccion" element={<TabSeleccion />} />
+          <Route
+            path="produccion/informe-produccion"
+            element={<InformeProduccion />}
+          />
+          {/* Produccion Admistracion */}
+          <Route
+            path="produccion/administracion/no-conforme"
+            element={<ProductoNoConforme />}
+          />
+          <Route
+            path="produccion/administracion/calidad"
+            element={<Calidad />}
+          />
+          <Route
+            path="produccion/administracion/indice-consumo-agua"
+            element={<IndiceConsumoAgua />}
+          />
+          <Route
+            path="produccion/administracion/indice-consumo-bases"
+            element={<IndiceConsumoBases />}
+          />
+          <Route
+            path="produccion/administracion/indice-consumo-ee"
+            element={<IndiceConsumoEe />}
+          />
+          <Route
+            path="produccion/administracion/indice-consumo-engobe"
+            element={<IndiceConsumoEngobe />}
+          />
+          <Route
+            path="produccion/administracion/indice-consumo-esmalte"
+            element={<IndiceConsumoEsmalte />}
+          />
+          <Route
+            path="produccion/administracion/indice-consumo-gn"
+            element={<IndiceConsumoGn />}
+          />
+          <Route
+            path="produccion/administracion/indice-consumo-linea"
+            element={<IndiceConsumoLinea />}
+          />
+          <Route
+            path="produccion/administracion/indice-polvo-atomizado"
+            element={<IndicePolvoAtomizado />}
+          />
+          <Route
+            path="produccion/administracion/monitoreo-gases-combustion"
+            element={<MonitoreoGasesCombustion />}
+          />
+          <Route
+            path="produccion/administracion/produccion"
+            element={<Produccion />}
+          />
+          {/** administracion */}
+          <Route
+            path="administracion/atencion-consultorio"
+            element={<AtencionConsultorio />}
+          />
+          <Route
+            path="administracion/consultorio-dental"
+            element={<ConsultorioDental />}
+          />
+          <Route path="administracion/horas-extra" element={<HorasExtra />} />
+          <Route path="administracion/utilidad" element={<Utilidad />} />
+          <Route
+            path="administracion/generacion-residuos"
+            element={<GeneracionResiduos />}
+          />
+          <Route
+            path="administracion/indice-frecuencia"
+            element={<IndiceFrecuencia />}
+          />
+          <Route
+            path="administracion/indice-severidad"
+            element={<IndiceSeveridad />}
+          />
+          <Route
+            path="administracion/indice-acciones-correctivas"
+            element={<IndiceAccionesCorrectivas />}
+          />
+          <Route path="administracion/donaciones" element={<Donaciones />} />
+          <Route
+            path="administracion/evolucion-contado-credito"
+            element={<EvolucionContadoContraCredito />}
+          />
+          <Route
+            path="administracion/reclamo-producto-terminado"
+            element={<ReclamoProductoTerminado />}
+          />
+          {/** administracion */}
+          <Route
+            path="comercializacion/ingreso-venta-total"
+            element={<IngresoVentaTotal />}
+          />
+          <Route
+            path="comercializacion/precio-unitario"
+            element={<PrecioUnitario />}
+          />
+          <Route path="comercializacion/venta-total" element={<VentaTotal />} />
+          {/** mantenimiento */}
+          <Route
+            path="mantenimiento/disponibilidad-linea"
+            element={<DisponibilidadPorLinea />}
+          />
+          {/** Documento */}
 
-            <Route path="secretaria/contrato" element={<ContratoAdmin />} />
-            <Route
-              path="secretaria/correspondencia"
-              element={<CorrespondenciaRecibida />}
-            />
-            <Route
-              path="secretaria/comercial"
-              element={<CorrespondenciaExternaComercial />}
-            />
-            <Route
-              path="secretaria/gerencia"
-              element={<CorrespondenciaExternaRecibida />}
-            />
-            <Route
-              path="medicina/inventario"
-              element={<InventarioMedicina />}
-            />
-            <Route path="medicina/enfermedad" element={<EnfermedadMes />} />
-            <Route path="medicina/oms" element={<FechasOms />} />
-            {/* Informe Gerente */}
-            <Route path="informe-gerente" element={<InformeGerente />} />
-            {/****Documeto */}
-            <Route
-              path="documento/gestion-calidad"
-              element={<GestionCalidadPage />}
-            />
-            <Route
-              path="documento/gestion-ambiental"
-              element={<GestionAmbiental />}
-            />
-            <Route
-              path="documento/gestion-seguridad"
-              element={<GestionSeguridad />}
-            />
-            <Route
-              path="documento/gestion-noticia"
-              element={<GestionNoticia />}
-            />
-            <Route
-              path="documento/gestion-comunicado"
-              element={<GestionComunicado />}
-            />
-            <Route path="documento/gestion-frase" element={<GestionFrases />} />
-            {/***Gestion Vaon */}
-            <Route
-              path="vaon/produccion-nacional"
-              element={<TabProduccionNacionalVaon />}
-            />
-            <Route
-              path="vaon/produccion-importado"
-              element={<TabProduccionImportadoVaon />}
-            />
-            <Route path="vaon/informe" element={<TabInformeVaon />} />
-            {/***Alertar */}
-            <Route path="alerta" element={<TabsAlertasAdmin />} />
-            {/***Cumpleanos */}
-            <Route path="cumpleanos" element={<CumpleanosAdmin />} />
-          </Route>
-          <Route path="/cliente" element={<ClienteLayout />}>
-            <Route index element={<Inicio />} />
-            <Route path="inicio" element={<Inicio />} />
-            <Route path="produccion/secciones" element={<TabProduccion />} />
-            <Route
-              path="produccion/administracion"
-              element={<TabProduccionAdministracion />}
-            />
-            <Route
-              path="produccion/mantenimiento"
-              element={<TabProduccionMantenimiento />}
-            />
-            <Route path="adminitracion" element={<TabAdministracion />} />
-            <Route path="comercializacion" element={<TabComercializacion />} />
-          </Route>
-          <Route path="/" element={<DocumetosLayout />} />
-          <Route path="/carrucel" element={<CarrucelMovimiento />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+          <Route path="secretaria/contrato" element={<ContratoAdmin />} />
+          <Route
+            path="secretaria/correspondencia"
+            element={<CorrespondenciaRecibida />}
+          />
+          <Route
+            path="secretaria/comercial"
+            element={<CorrespondenciaExternaComercial />}
+          />
+          <Route
+            path="secretaria/gerencia"
+            element={<CorrespondenciaExternaRecibida />}
+          />
+          <Route path="medicina/inventario" element={<InventarioMedicina />} />
+          <Route path="medicina/enfermedad" element={<EnfermedadMes />} />
+          <Route path="medicina/oms" element={<FechasOms />} />
+          {/* Informe Gerente */}
+          <Route path="informe-gerente" element={<InformeGerente />} />
+          {/****Documeto */}
+          <Route
+            path="documento/gestion-calidad"
+            element={<GestionCalidadPage />}
+          />
+          <Route
+            path="documento/gestion-ambiental"
+            element={<GestionAmbiental />}
+          />
+          <Route
+            path="documento/gestion-seguridad"
+            element={<GestionSeguridad />}
+          />
+          <Route
+            path="documento/gestion-noticia"
+            element={<GestionNoticia />}
+          />
+          <Route
+            path="documento/gestion-comunicado"
+            element={<GestionComunicado />}
+          />
+          <Route path="documento/gestion-frase" element={<GestionFrases />} />
+          {/***Gestion Vaon */}
+          <Route
+            path="vaon/produccion-nacional"
+            element={<TabProduccionNacionalVaon />}
+          />
+          <Route
+            path="vaon/produccion-importado"
+            element={<TabProduccionImportadoVaon />}
+          />
+          <Route path="vaon/informe" element={<TabInformeVaon />} />
+          {/***Alertar */}
+          <Route path="alerta" element={<TabsAlertasAdmin />} />
+          {/***Cumpleanos */}
+          <Route path="cumpleanos" element={<CumpleanosAdmin />} />
+        </Route>
+        <Route path="/cliente" element={<ClienteProtected />}>
+          <Route index element={<Inicio />} />
+          <Route path="inicio" element={<Inicio />} />
+          <Route path="produccion/secciones" element={<TabProduccion />} />
+          <Route
+            path="produccion/administracion"
+            element={<TabProduccionAdministracion />}
+          />
+          <Route
+            path="produccion/mantenimiento"
+            element={<TabProduccionMantenimiento />}
+          />
+          <Route path="adminitracion" element={<TabAdministracion />} />
+          <Route path="comercializacion" element={<TabComercializacion />} />
+        </Route>
+        <Route path="/" element={<DocumetosLayout />} />
+        <Route path="/carrucel" element={<CarrucelMovimiento />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

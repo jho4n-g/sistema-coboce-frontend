@@ -33,6 +33,19 @@ export default function Barbotina() {
 
   const [openModal, setOpenModal] = useState(false);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
+  //Detalles
+  const [openDetalles, setOpenDetalles] = useState(false);
+  const [idDetalles, setIdDetalles] = useState(null);
+
+  const handleDetalles = (id) => {
+    setIdDetalles(id);
+    setOpenDetalles(true);
+  };
+  const handleCloseDetalles = () => {
+    setIdDetalles(null);
+    setOpenDetalles(false);
+  };
+  //
 
   const tableRef = useRef(null);
 
@@ -107,7 +120,7 @@ export default function Barbotina() {
         titulo="Produccion/ Control de proceso de moliento barbotina"
         datosBusqueda={['fecha', 'turno', 'operador']}
         columnas={columnas}
-        handleDetail={{}}
+        handleDetail={handleDetalles}
         handleEdit={hanldeEdit}
         hanldeDelete={hanldeOpenConfirmDelete}
         enableHorizontalScroll={false}
@@ -129,6 +142,7 @@ export default function Barbotina() {
         onSave={handleOpenConfirmUpdate}
         fetchById={getIdObj}
         id={idRow}
+        mode="edit"
       />
       <ConfirmModal
         open={openModalUpdate}
@@ -140,6 +154,13 @@ export default function Barbotina() {
         danger={false}
         onClose={handleCloseConfirmUpdate}
         onConfirm={handleSave}
+      />
+      <BarbotinaModal
+        open={openDetalles}
+        onClose={handleCloseDetalles}
+        fetchById={getIdObj}
+        id={idDetalles}
+        mode="view"
       />
     </>
   );

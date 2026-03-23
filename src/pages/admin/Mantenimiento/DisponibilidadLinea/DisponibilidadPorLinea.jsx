@@ -165,7 +165,7 @@ export default function DisponibilidadPorLinea() {
       <TablaRetutilizable
         ref={tableRef}
         getObj={getObjPromedios}
-        titulo="Mantenimineto/ Desponibilidad por linea"
+        titulo="Mantenimineto/ Disponibilidad por linea"
         datosBusqueda={['periodo']}
         columnas={columnas}
         handleDetail={handleOpenDetalles}

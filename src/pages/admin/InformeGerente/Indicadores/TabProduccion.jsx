@@ -28,7 +28,6 @@ const tabs = [
     label: 'Monitoreo de Gases de Combustión',
   },
   { key: 'Produccion', label: 'Producción' },
-  { key: 'ProductoNoConforme', label: 'Producto No Conforme' },
 ];
 
 export default function TabProduccion() {
@@ -54,7 +53,6 @@ export default function TabProduccion() {
         {tab === 'IndicePolvoAtomizado' && <IndicePolvoAtomizado />}
         {tab === 'MonitoreoGasesCombustion' && <MonitoreoGasesCombustion />}
         {tab === 'Produccion' && <Produccion />}
-        {tab === 'ProductoNoConforme' && <ProductoNoConforme />}
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useState, createContext } from 'react';
 import { getMe } from '../service/auth/Login.services';
-import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
 
@@ -30,12 +29,15 @@ const AuthProvider = ({ children }) => {
         if (data.ok) {
           setAuth(data.user);
         } else {
-          toast.error(data.message);
           setAuth(null);
+          localStorage.removeItem('token');
         }
       } catch (error) {
-        toast.error(error.message);
+        console.error('Error al verificar sesión:', error);
         setAuth(null);
+        if (localStorage.getItem('token')) {
+          localStorage.removeItem('token');
+        }
       } finally {
         setLoading(false);
       }

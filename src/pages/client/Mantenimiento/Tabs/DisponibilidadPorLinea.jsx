@@ -108,7 +108,8 @@ export default function DisponibilidadPorLinea() {
         setOpenModal(false);
       }
       if (!res.ok) {
-        toast.error(res.message || 'Error al actualizar el registro12');
+        toast.error(res.message || 'Error al actualizar el registro');
+        setOpenModalUpdate(false);
       }
     } catch (e) {
       toast.error(e.message || 'Error al actualizar el registro');
@@ -169,7 +170,7 @@ export default function DisponibilidadPorLinea() {
       <TablaRetutilizable
         ref={tableRef}
         getObj={getObjsUser}
-        titulo="Mantenimineto/ Desponibilidad por linea"
+        titulo="Mantenimineto/ Disponibilidad por linea"
         datosBusqueda={['fecha']}
         columnas={columnas}
         handleDetail={() => {}}

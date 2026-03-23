@@ -15,7 +15,6 @@ const tabs = [
   { key: 'IndiceFrecuencia', label: 'Índice de Frecuencia' },
   { key: 'IndiceSeveridad', label: 'Índice de Severidad' },
   { key: 'Donaciones', label: 'Donaciones' },
-  { key: 'ReclamoProductoTerminado', label: 'Reclamo de Producto Terminado' },
 ];
 
 export default function PlanillaProduccion() {
@@ -32,7 +31,6 @@ export default function PlanillaProduccion() {
         {tab === 'IndiceFrecuencia' && <IndiceFrecuencia />}
         {tab === 'IndiceSeveridad' && <IndiceSeveridad />}
         {tab === 'Donaciones' && <Donaciones />}
-        {tab === 'ReclamoProductoTerminado' && <ReclamoProductoTerminado />}
       </div>
     </div>
   );

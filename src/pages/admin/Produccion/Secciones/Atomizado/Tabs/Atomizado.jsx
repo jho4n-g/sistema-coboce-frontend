@@ -32,6 +32,19 @@ export default function Atomizado() {
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [loading, setLoading] = useState(false);
   const tableRef = useRef(null);
+  //Detalles
+  const [openDetalles, setOpenDetalles] = useState(false);
+  const [idDetalles, setIdDetalles] = useState(null);
+
+  const handleDetalles = (id) => {
+    setIdDetalles(id);
+    setOpenDetalles(true);
+  };
+  const handleCloseDetalles = () => {
+    setIdDetalles(null);
+    setOpenDetalles(false);
+  };
+  //
 
   const hanldeOpenConfirmDelete = (id) => {
     setIdRow(id);
@@ -102,7 +115,7 @@ export default function Atomizado() {
         titulo="Produccion/ Control de proceso de atomizado"
         datosBusqueda={['fecha', 'turno', 'operador']}
         columnas={columnas}
-        handleDetail={() => {}}
+        handleDetail={handleDetalles}
         handleEdit={hanldeEdit}
         hanldeDelete={hanldeOpenConfirmDelete}
         enableHorizontalScroll={false}
@@ -124,6 +137,7 @@ export default function Atomizado() {
         onSave={handleOpenConfirmUpdate}
         fetchById={getIdObj}
         id={idRow}
+        mode="edit"
       />
       <ConfirmModal
         open={openModalUpdate}
@@ -135,6 +149,13 @@ export default function Atomizado() {
         danger={false}
         onClose={handleCloseConfirmUpdate}
         onConfirm={handleSave}
+      />
+      <AtomizadoModal
+        open={openDetalles}
+        onClose={handleCloseDetalles}
+        fetchById={getIdObj}
+        id={idDetalles}
+        mode="view"
       />
     </>
   );

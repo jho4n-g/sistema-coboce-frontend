@@ -151,6 +151,7 @@ export default function Seleccion() {
         onSave={handleOpenConfirmUpdate}
         fetchById={getIdObj}
         id={idRow}
+        mode="edit"
       />
       <ConfirmModal
         open={openModalUpdate}
@@ -163,11 +164,12 @@ export default function Seleccion() {
         onClose={handleCloseConfirmUpdate}
         onConfirm={handleSave}
       />
-      <SeleccionEmbalajeDetalleModal
+      <SeleccionModal
         open={openDetalle}
         onClose={() => setOpenDetalle(false)}
         fetchById={getIdObj} // tu servicio
         id={idRow}
+        mode="view"
       />
     </>
   );
