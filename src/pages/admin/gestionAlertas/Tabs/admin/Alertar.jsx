@@ -554,10 +554,10 @@ export default function Alertas() {
                 <button
                   type="button"
                   onClick={() => abrirCrearEvento(detalleDia.fecha)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 transition"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-900 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-800 transition"
                 >
                   <PlusIcon className="h-4 w-4" />
-                  Agregar
+                  Agregaras
                 </button>
 
                 <button
@@ -600,7 +600,7 @@ export default function Alertas() {
                       <button
                         type="button"
                         onClick={() => abrirEditarEvento(evento)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+                        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-slate-50 transition"
                       >
                         <PencilSquareIcon className="h-4 w-4" />
                         Editar
@@ -727,7 +727,7 @@ export default function Alertas() {
 
                 <button
                   type="submit"
-                  className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800 transition"
+                  className="rounded-xl bg-emerald-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-800 transition"
                 >
                   {modoFormulario === 'crear' ? 'Guardar' : 'Actualizar'}
                 </button>

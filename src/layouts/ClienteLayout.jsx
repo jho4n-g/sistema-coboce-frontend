@@ -20,19 +20,19 @@ const navItems = [
   { to: '/cliente/produccion/secciones', label: 'Planilla Producción' },
   {
     to: '/cliente/produccion/administracion',
-    label: 'Planilla Producción administracion',
+    label: 'Indicadores Producción',
   },
   {
     to: '/cliente/produccion/mantenimiento',
-    label: 'Planilla mantenimiento',
+    label: 'Indicadores mantenimiento',
   },
   {
     to: '/cliente/adminitracion',
-    label: 'Planilla administracion',
+    label: 'Indicadores administracion',
   },
   {
     to: '/cliente/comercializacion',
-    label: 'Planilla comercializacion',
+    label: 'Indicadores comercializacion',
   },
 ];
 

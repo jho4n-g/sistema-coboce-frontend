@@ -2,28 +2,25 @@ import TablaRetutilizable from '@components/TablaReutilizable';
 import ConfirmModal from '@components/ConfirmModal';
 import { useState, useRef } from 'react';
 import { toast } from 'react-toastify';
-import { periodoATexto } from '@helpers/normalze.helpers';
-import { AguaServices as services } from '@service/GestionVaon/ProduccionNacional/Insumos/Agua.services.js';
-import AguaModal from './AguaModal';
-import AguaDetallesModa from './AguaDetallesModa';
+import { InformeProduccionServices as services } from '../../../service/InformeProduccion/InformeProduccion.services.js';
+import InformeJefeProduccionModal from './InformeJefeProduccionModal.jsx';
 
 const columnas = [
   {
-    label: 'Periodo',
-    key: 'periodo',
-    render: (row) => periodoATexto(row.periodo),
+    label: 'Dia',
+    key: 'dia_id',
   },
-  { label: 'Precio total', key: 'precio_total' },
-  { label: 'Consumo litros', key: 'consumo_litros' },
+  {
+    label: 'Supervisor',
+    key: 'supervisor',
+  },
 ];
 
-export default function Politica() {
+export default function Frases() {
   const tableRef = useRef(null);
 
   const [idRow, setIdRow] = useState(null);
   const [loading, setLoading] = useState(false);
-  //
-
   //delete
   const [openDelete, setDelete] = useState(false);
   //udate
@@ -34,15 +31,7 @@ export default function Politica() {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [openConfirmCreate, setOpenConfirmCreate] = useState(false);
   const [payloadCreate, setPayloadCreate] = useState(null);
-  //detalles
-  //
-  const [openDetalles, setOpenDetalles] = useState(false);
-  const [idDetalles, setIdDetalles] = useState(null);
-  //detalles
-  const hanldeOpenDetalles = (id) => {
-    setIdDetalles(id);
-    setOpenDetalles(true);
-  };
+
   //
   const hanldeOpenConfirmDelete = (id) => {
     setIdRow(id);
@@ -141,10 +130,11 @@ export default function Politica() {
       <TablaRetutilizable
         ref={tableRef}
         getObj={services.getAll}
-        titulo="Produccion nacional/ Agua"
-        datosBusqueda={['codigo', 'titulo']}
+        titulo="Gestion de cumpleaños"
+        datosBusqueda={['nombre_completo', 'edad']}
         columnas={columnas}
-        handleDetail={hanldeOpenDetalles}
+        isDetalle={false}
+        handleDetail={() => {}}
         handleEdit={hanldeEdit}
         hanldeDelete={hanldeOpenConfirmDelete}
         enableHorizontalScroll={false}
@@ -164,13 +154,13 @@ export default function Politica() {
         onConfirm={hanldeDelete}
       />
 
-      <AguaModal
+      <InformeJefeProduccionModal
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         onSave={handleOpenConfirmUpdate}
         fetchById={services.getId}
         id={idRow}
-        isEditing={true}
+        isEdit={true}
       />
       <ConfirmModal
         open={openConfirmUpdate}
@@ -183,11 +173,11 @@ export default function Politica() {
         onClose={handleCloseConfirmUpdate}
         onConfirm={handleUpdate}
       />
-      <AguaModal
+      <InformeJefeProduccionModal
         open={openModalCreate}
         onClose={() => setOpenModalCreate(false)}
         onSave={handleOpenModalConfirmCreate}
-        isEditing={false}
+        isEdit={false}
       />
       <ConfirmModal
         open={openConfirmCreate}
@@ -199,12 +189,6 @@ export default function Politica() {
         danger={false}
         onClose={() => setOpenConfirmCreate(false)}
         onConfirm={hanldeCreate}
-      />
-      <AguaDetallesModa
-        open={openDetalles}
-        onClose={() => setOpenDetalles(false)}
-        id={idDetalles}
-        fetchById={services.getId}
       />
     </>
   );

@@ -77,12 +77,12 @@ export const adminNav = [
     items: [{ label: 'Trabajadores', to: '/admin/cumpleanos', icon: BellIcon }],
   },
 
-  {
-    id: 'alerta',
-    title: 'Gestion alerta',
-    icon: BellIcon,
-    items: [{ label: 'Alertas', to: '/admin/alerta', icon: BellIcon }],
-  },
+  // {
+  //   id: 'alerta',
+  //   title: 'Gestion alerta',
+  //   icon: BellIcon,
+  //   items: [{ label: 'Alertas', to: '/admin/alerta', icon: BellIcon }],
+  // },
 
   {
     id: 'gestionVAon',
@@ -157,12 +157,17 @@ export const adminNav = [
         to: '/admin/produccion/seleccion',
         icon: BriefcaseIcon,
       },
+      {
+        label: 'Jefe Produccion',
+        to: '/admin/produccion/jefe-produccion',
+        icon: BriefcaseIcon,
+      },
     ],
   },
 
   {
     id: 'produccionAdministracion',
-    title: 'Produccion administracion',
+    title: 'Indicadores Produccion',
     icon: ChartBarIcon,
     items: [
       {
@@ -225,7 +230,7 @@ export const adminNav = [
 
   {
     id: 'mantenimiento',
-    title: 'Mantenimiento',
+    title: 'Indicadores Mantenimiento',
     icon: WrenchScrewdriverIcon,
     items: [
       {
@@ -302,7 +307,7 @@ export const adminNav = [
 
   {
     id: 'administracion',
-    title: 'Administración',
+    title: 'Indicadores Administración',
     icon: BuildingOffice2Icon,
     items: [
       {
@@ -345,7 +350,7 @@ export const adminNav = [
 
   {
     id: 'comercializacion',
-    title: 'Comercializacion',
+    title: 'Indicadores Comercializacion',
     icon: CurrencyDollarIcon,
     items: [
       {
