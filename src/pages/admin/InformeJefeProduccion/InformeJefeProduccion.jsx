@@ -6,11 +6,13 @@ import { InformeProduccionServices as services } from '../../../service/InformeP
 import InformeJefeProduccionModal from './InformeJefeProduccionModal.jsx';
 import { getIdFormatoLinea } from '@service/Produccion/Secciones/Formato.services';
 import { getObjsUnidos as getLineas } from '@service/Produccion/Secciones/Lineas.services';
+import { normalizarFecha } from '../../../helpers/normalze.helpers.js';
 
 const columnas = [
   {
     label: 'Fecha',
     key: 'fecha',
+    render: (row) => normalizarFecha(row.fecha),
   },
   {
     label: 'Supervisor',
@@ -24,16 +26,22 @@ const columnas = [
     label: 'Formato',
     key: 'formato',
   },
+  {
+    label: 'Total m2',
+    key: 'total_dia_m2',
+  },
 ];
 
 export default function Frases() {
   const tableRef = useRef(null);
 
-  const [idRow, setIdRow] = useState(null);
+  // const [idRow, setIdRow] = useState(null);
   const [loading, setLoading] = useState(false);
   //delete
+  const [idDelete, setIdDelete] = useState(null);
   const [openDelete, setDelete] = useState(false);
   //udate
+  const [idUpdate, setIdUpdate] = useState(null);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openConfirmUpdate, setConfirmUpdate] = useState(false);
   const [payloadUpdate, setPayloadUpdate] = useState(null);
@@ -41,16 +49,29 @@ export default function Frases() {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [openConfirmCreate, setOpenConfirmCreate] = useState(false);
   const [payloadCreate, setPayloadCreate] = useState(null);
+  //Detalles
 
+  const [idDetalle, setIdDetalle] = useState(null);
+  const [openDetalle, setOpenDetalle] = useState(false);
+  //
+
+  const handldeOpenDetalle = (id) => {
+    setIdDetalle(id);
+    setOpenDetalle(true);
+  };
+  const handleCloseDetalle = () => {
+    setIdDetalle(null);
+    setOpenDetalle(false);
+  };
   //
   const hanldeOpenConfirmDelete = (id) => {
-    setIdRow(id);
+    setIdDelete(id);
     setDelete(true);
   };
   const hanldeDelete = async () => {
     setLoading(true);
     try {
-      const res = await services.delete(idRow);
+      const res = await services.delete(idDelete);
       if (res.ok) {
         toast.success('Registro eliminado con éxito');
         closeDelete();
@@ -69,11 +90,11 @@ export default function Frases() {
   };
   const closeDelete = () => {
     setDelete(false);
-    setIdRow(null);
+    setIdDelete(null);
   };
 
   const hanldeEdit = (id) => {
-    setIdRow(id);
+    setIdUpdate(id);
     setOpenUpdate(true);
   };
 
@@ -82,14 +103,14 @@ export default function Frases() {
     setConfirmUpdate(true);
   };
   const handleCloseConfirmUpdate = () => {
-    setIdRow(null);
-    setPayloadUpdate(null);
+    setIdUpdate(null);
+    setConfirmUpdate(null);
     setOpenUpdate(false);
   };
   const handleUpdate = async () => {
     try {
       setLoading(true);
-      const res = await services.update(idRow, payloadUpdate);
+      const res = await services.update(idUpdate, payloadUpdate);
       if (res.ok) {
         toast.success('Registro actualizado con éxito');
         setConfirmUpdate(false);
@@ -143,8 +164,8 @@ export default function Frases() {
         titulo="Informe Jefe de Producción"
         datosBusqueda={['supervisor', 'linea', 'formato']}
         columnas={columnas}
-        isDetalle={false}
-        handleDetail={() => {}}
+        isDetalle={true}
+        handleDetail={handldeOpenDetalle}
         handleEdit={hanldeEdit}
         hanldeDelete={hanldeOpenConfirmDelete}
         enableHorizontalScroll={false}
@@ -169,7 +190,7 @@ export default function Frases() {
         onClose={() => setOpenUpdate(false)}
         onSave={handleOpenConfirmUpdate}
         fetchById={services.getId}
-        id={idRow}
+        id={idUpdate}
         isEdit={true}
       />
       <ConfirmModal
@@ -208,6 +229,14 @@ export default function Frases() {
         danger={false}
         onClose={() => setOpenConfirmCreate(false)}
         onConfirm={hanldeCreate}
+      />
+
+      <InformeJefeProduccionModal
+        id={idDetalle}
+        open={openDetalle}
+        fetchById={services.getId}
+        onClose={handleCloseDetalle}
+        isView={true}
       />
     </>
   );

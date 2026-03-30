@@ -3,8 +3,16 @@ import { toast } from 'react-toastify';
 import InputField from '@components/InputField';
 
 import { getObjs as getTurnos } from '@service/Produccion/Turno.services';
-import { getIdFormatoLinea } from '@service/Produccion/Secciones/Formato.services';
+import {
+  getIdFormatoLinea,
+  getIdObj as getFormatoById,
+} from '@service/Produccion/Secciones/Formato.services';
 import { getObjsUnidos as getLineas } from '@service/Produccion/Secciones/Lineas.services';
+
+import {
+  informeSchema,
+  informeUpdateSchema,
+} from '@schema/JefeProduccion/InformeProduccion.schema.js';
 
 const initialDetalleByTurnos = (turnos = []) =>
   turnos.length
@@ -44,6 +52,117 @@ const initialProducto = (turnos = [], orden = 1) => ({
   detalles: initialDetalleByTurnos(turnos),
 });
 
+const toNumber = (value) => {
+  if (value === '' || value === null || value === undefined) return 0;
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+const getTotalDetalleTurno = (detalle = {}) => {
+  return (
+    toNumber(detalle.metros_cuadrados_primera) +
+    toNumber(detalle.metros_cuadrados_segunda) +
+    toNumber(detalle.metros_cuadrados_tercera) +
+    toNumber(detalle.metros_cuadrados_casco)
+  );
+};
+
+const getTotalesGenerales = (productos = [], turnos = []) => {
+  const totalesPorTurno = turnos.map((turno) => {
+    const total = productos.reduce((acc, producto) => {
+      const detalle = (producto.detalles || []).find(
+        (item) => Number(item.turno_id) === Number(turno.id),
+      );
+
+      return acc + getTotalDetalleTurno(detalle);
+    }, 0);
+
+    return {
+      turno_id: turno.id,
+      turno_label: turno.nombre || turno.descripcion || `Turno ${turno.id}`,
+      total,
+    };
+  });
+
+  const totalMetrosCuadrados = totalesPorTurno.reduce(
+    (acc, item) => acc + item.total,
+    0,
+  );
+
+  return {
+    totalesPorTurno,
+    totalMetrosCuadrados,
+  };
+};
+
+const getTotalesPrimeraSegundaPorTurno = (
+  productos = [],
+  turnos = [],
+  metrosCaja,
+) => {
+  const divisor = Number(metrosCaja);
+
+  // ✅ evitamos división por 0, null, undefined o NaN
+  const divisorSeguro = divisor > 0 ? divisor : 1;
+
+  const datosTurno = turnos.map((turno) => {
+    const primera = productos.reduce((acc, producto) => {
+      const detalle = (producto.detalles || []).find(
+        (item) => Number(item.turno_id) === Number(turno.id),
+      );
+
+      return acc + toNumber(detalle?.metros_cuadrados_primera);
+    }, 0);
+
+    const segunda = productos.reduce((acc, producto) => {
+      const detalle = (producto.detalles || []).find(
+        (item) => Number(item.turno_id) === Number(turno.id),
+      );
+
+      return acc + toNumber(detalle?.metros_cuadrados_segunda);
+    }, 0);
+
+    const totalPrimeraSegunda = primera + segunda;
+
+    return {
+      turno_id: turno.id,
+      turno_label: turno.nombre || turno.descripcion || `Turno ${turno.id}`,
+      primera,
+      segunda,
+      total_primera_segunda: totalPrimeraSegunda,
+    };
+  });
+
+  const datosGeneralPrimera = datosTurno.reduce(
+    (acc, item) => acc + item.primera,
+    0,
+  );
+
+  const datosGeneralSegunda = datosTurno.reduce(
+    (acc, item) => acc + item.segunda,
+    0,
+  );
+
+  const datosGeneralPrimeraSegunda = datosTurno.reduce(
+    (acc, item) => acc + item.total_primera_segunda,
+    0,
+  );
+
+  const resumenPorTurno = datosTurno.map((item) => ({
+    turno_id: item.turno_id,
+    turno_label: item.turno_label,
+    primera: item.primera / divisorSeguro,
+    segunda: item.segunda / divisorSeguro,
+    total_primera_segunda: item.total_primera_segunda / divisorSeguro,
+  }));
+
+  return {
+    resumenPorTurno,
+    totalGeneralPrimera: datosGeneralPrimera / divisorSeguro,
+    totalGeneralSegunda: datosGeneralSegunda / divisorSeguro,
+    totalGeneralPrimeraSegunda: datosGeneralPrimeraSegunda / divisorSeguro,
+  };
+};
 export default function InformeModal({
   open,
   onClose,
@@ -60,15 +179,35 @@ export default function InformeModal({
   const [turnos, setTurnos] = useState([]);
   const [lineas, setLineas] = useState([]);
   const [formatos, setFormatos] = useState([]);
+  const [datosFormato, setDatosFormato] = useState(null);
   const [loadingTurnos, setLoadingTurnos] = useState(false);
   const [loadingLineas, setLoadingLineas] = useState(false);
   const [loadingFormatos, setLoadingFormatos] = useState(false);
+
+  // Totales generales
+  const [generalMetros, setGeneralMetros] = useState(null);
 
   const title = useMemo(() => {
     if (isView) return 'Detalle del informe';
     if (isEdit) return 'Edición del informe';
     return 'Nuevo informe';
   }, [isEdit, isView]);
+
+  const totalesGenerales = useMemo(() => {
+    return getTotalesGenerales(form?.informe_producto || [], turnos);
+  }, [form?.informe_producto, turnos]);
+
+  useEffect(() => {
+    setGeneralMetros(getTotalesGenerales(form?.informe_producto || [], turnos));
+  }, [form?.informe_producto, turnos, datosFormato]);
+
+  const totalesPrimeraSegunda = useMemo(() => {
+    return getTotalesPrimeraSegundaPorTurno(
+      form?.informe_producto || [],
+      turnos,
+      datosFormato,
+    );
+  }, [form?.informe_producto, turnos, datosFormato]);
 
   const buildInitialForm = (loadedTurnos = []) => ({
     fecha: '',
@@ -78,6 +217,81 @@ export default function InformeModal({
     prensa: initialPrensaByTurnos(loadedTurnos),
     informe_producto: [initialProducto(loadedTurnos, 1)],
   });
+
+  const mapZodErrors = (issues = []) => {
+    const formatted = {};
+
+    for (const issue of issues) {
+      const path = issue.path.join('.');
+      if (!formatted[path]) {
+        formatted[path] = issue.message;
+      }
+    }
+
+    return formatted;
+  };
+
+  const normalizeNumber = (value) => {
+    if (value === '' || value === null || value === undefined) return 0;
+    return Number(value);
+  };
+
+  const buildPayload = () => ({
+    fecha: form.fecha,
+    supervisor: form.supervisor?.trim(),
+    linea_id: Number(form.linea_id),
+    formato_id: Number(form.formato_id),
+
+    prensa: form.prensa.map((item) => ({
+      turno_id: Number(item.turno_id),
+      silo_utilizado: item.silo_utilizado,
+      arcilla_consumida: normalizeNumber(item.arcilla_consumida),
+      ciclos: normalizeNumber(item.ciclos),
+      peso_pieza: normalizeNumber(item.peso_pieza),
+      perdida: normalizeNumber(item.perdida),
+    })),
+    informe_producto: form.informe_producto.map((producto, index) => ({
+      nombre_producto: producto.nombre_producto?.trim(),
+      programado_m2: normalizeNumber(producto.programado_m2),
+      acumulado_m2: normalizeNumber(producto.acumulado_m2),
+      acumulado_dia: normalizeNumber(producto.acumulado_dia),
+      orden: producto.orden || index + 1,
+      detalles: producto.detalles.map((detalle) => ({
+        turno_id: Number(detalle.turno_id),
+        metros_cuadrados_primera: normalizeNumber(
+          detalle.metros_cuadrados_primera,
+        ),
+        porcentaje_primera: normalizeNumber(detalle.porcentaje_primera),
+        metros_cuadrados_segunda: normalizeNumber(
+          detalle.metros_cuadrados_segunda,
+        ),
+        porcentaje_segunda: normalizeNumber(detalle.porcentaje_segunda),
+        metros_cuadrados_tercera: normalizeNumber(
+          detalle.metros_cuadrados_tercera,
+        ),
+        porcentaje_tercera: normalizeNumber(detalle.porcentaje_tercera),
+        metros_cuadrados_casco: normalizeNumber(detalle.metros_cuadrados_casco),
+        porcentaje_casco: normalizeNumber(detalle.porcentaje_casco),
+      })),
+    })),
+  });
+
+  const validateWithSchema = (payload) => {
+    const result = isEdit
+      ? informeUpdateSchema.safeParse(payload)
+      : informeSchema.safeParse(payload);
+
+    if (result.success) {
+      setError({});
+      return { ok: true, data: result.data };
+    }
+
+    const zodErrors = mapZodErrors(result.error.issues);
+    setError(zodErrors);
+
+    toast.error(result.error.issues?.[0]?.message || 'Datos inválidos');
+    return { ok: false, errors: zodErrors };
+  };
 
   useEffect(() => {
     if (!open) {
@@ -265,6 +479,7 @@ export default function InformeModal({
     (async () => {
       try {
         const resp = await getIdFormatoLinea(form.linea_id);
+
         if (!active) return;
 
         const list = resp?.dato || resp?.data || [];
@@ -284,6 +499,42 @@ export default function InformeModal({
     };
   }, [open, form?.linea_id]);
 
+  useEffect(() => {
+    if (!form?.formato_id) {
+      setDatosFormato(null);
+      return;
+    }
+
+    let active = true;
+
+    (async () => {
+      try {
+        const resp = await getFormatoById(form.formato_id);
+
+        if (!active) return;
+
+        if (!resp?.ok) {
+          toast.error(
+            resp?.message || 'No se pudo cargar el formato seleccionado',
+          );
+          return;
+        }
+
+        setDatosFormato(
+          resp?.dato?.[0]?.caja_metros || resp?.data?.[0]?.caja_metros || null,
+        );
+      } catch (error) {
+        if (active) {
+          toast.error(error.message || 'Error al obtener el formato');
+        }
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [form?.formato_id]);
+
   if (!open) return null;
 
   const updateBase = (e) => {
@@ -300,6 +551,12 @@ export default function InformeModal({
       copy[index] = { ...copy[index], [field]: value };
       return { ...prev, prensa: copy };
     });
+
+    setError((prev) => ({
+      ...prev,
+      [`prensa.${index}.${field}`]: undefined,
+      prensa: undefined,
+    }));
   };
 
   const updateProducto = (index, field, value) => {
@@ -309,6 +566,12 @@ export default function InformeModal({
       copy[index] = { ...copy[index], [field]: value };
       return { ...prev, informe_producto: copy };
     });
+
+    setError((prev) => ({
+      ...prev,
+      [`informe_producto.${index}.${field}`]: undefined,
+      informe_producto: undefined,
+    }));
   };
 
   const updateDetalle = (productoIndex, detalleIndex, field, value) => {
@@ -320,6 +583,14 @@ export default function InformeModal({
       productos[productoIndex] = { ...productos[productoIndex], detalles };
       return { ...prev, informe_producto: productos };
     });
+
+    setError((prev) => ({
+      ...prev,
+      [`informe_producto.${productoIndex}.detalles.${detalleIndex}.${field}`]:
+        undefined,
+      [`informe_producto.${productoIndex}.detalles`]: undefined,
+      informe_producto: undefined,
+    }));
   };
 
   const addProducto = () => {
@@ -346,85 +617,23 @@ export default function InformeModal({
     });
   };
 
-  const normalizeNumber = (value) => {
-    if (value === '' || value === null || value === undefined) return 0;
-    return Number(value);
-  };
-
-  const validate = () => {
-    const nextError = {};
-
-    if (!form?.fecha) nextError.fecha = 'La fecha es obligatoria';
-    if (!form?.supervisor?.trim())
-      nextError.supervisor = 'El supervisor es obligatorio';
-    if (!form?.linea_id) nextError.linea_id = 'La línea es obligatoria';
-    if (!form?.formato_id) nextError.formato_id = 'El formato es obligatorio';
-
-    if (!form?.informe_producto?.length) {
-      nextError.informe_producto = 'Debe registrar al menos un producto';
-    }
-
-    form?.informe_producto?.forEach((producto) => {
-      if (!producto.nombre_producto?.trim()) {
-        nextError.informe_producto = 'Todos los productos deben tener nombre';
-      }
-    });
-
-    setError(nextError);
-    return Object.keys(nextError).length === 0;
-  };
-
   const handleSave = async () => {
     if (isView || saving) return;
-    if (!validate()) {
-      toast.error('Completa correctamente los datos del informe');
-      return;
-    }
 
-    const payload = {
-      fecha: form.fecha,
-      supervisor: form.supervisor.trim(),
-      linea_id: Number(form.linea_id),
-      formato_id: Number(form.formato_id),
-      prensa: form.prensa.map((item) => ({
-        turno_id: Number(item.turno_id),
-        silo_utilizado: item.silo_utilizado,
-        arcilla_consumida: normalizeNumber(item.arcilla_consumida),
-        ciclos: normalizeNumber(item.ciclos),
-        peso_pieza: normalizeNumber(item.peso_pieza),
-        perdida: normalizeNumber(item.perdida),
-      })),
-      informe_producto: form.informe_producto.map((producto, index) => ({
-        nombre_producto: producto.nombre_producto.trim(),
-        programado_m2: normalizeNumber(producto.programado_m2),
-        acumulado_m2: normalizeNumber(producto.acumulado_m2),
-        acumulado_dia: normalizeNumber(producto.acumulado_dia),
-        orden: producto.orden || index + 1,
-        detalles: producto.detalles.map((detalle) => ({
-          turno_id: Number(detalle.turno_id),
-          metros_cuadrados_primera: normalizeNumber(
-            detalle.metros_cuadrados_primera,
-          ),
-          porcentaje_primera: normalizeNumber(detalle.porcentaje_primera),
-          metros_cuadrados_segunda: normalizeNumber(
-            detalle.metros_cuadrados_segunda,
-          ),
-          porcentaje_segunda: normalizeNumber(detalle.porcentaje_segunda),
-          metros_cuadrados_tercera: normalizeNumber(
-            detalle.metros_cuadrados_tercera,
-          ),
-          porcentaje_tercera: normalizeNumber(detalle.porcentaje_tercera),
-          metros_cuadrados_casco: normalizeNumber(
-            detalle.metros_cuadrados_casco,
-          ),
-          porcentaje_casco: normalizeNumber(detalle.porcentaje_casco),
-        })),
-      })),
-    };
+    const payload = buildPayload();
+
+    const validation = validateWithSchema(payload);
+
+    if (!validation.ok) return;
 
     try {
       setSaving(true);
-      await onSave(payload);
+      const dataSave = {
+        total_dia_m2: generalMetros?.totalMetrosCuadrados,
+        ...validation.data,
+      };
+
+      await onSave(dataSave);
     } catch (e) {
       toast.error(e?.message || 'No se pudo guardar el informe');
     } finally {
@@ -446,7 +655,7 @@ export default function InformeModal({
         className="absolute inset-0 bg-black/40"
       />
 
-      <div className="relative z-10 w-[96vw] max-w-9xl rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 max-h-[calc(100vh-2rem)] overflow-y-auto">
+      <div className="relative z-10 max-h-[calc(100vh-2rem)] w-[96vw] max-w-9xl overflow-y-auto rounded-2xl bg-white shadow-xl ring-1 ring-slate-200">
         {(loading ||
           loadingTurnos ||
           loadingLineas ||
@@ -517,7 +726,9 @@ export default function InformeModal({
                         }));
                       }}
                       disabled={isView || loadingLineas}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2 outline-none focus:border-sky-500 disabled:bg-slate-100"
+                      className={`w-full rounded-xl border bg-white px-4 py-2 outline-none focus:border-sky-500 disabled:bg-slate-100 ${
+                        error.linea_id ? 'border-red-500' : 'border-slate-300'
+                      }`}
                     >
                       <option value="">Seleccione una línea</option>
                       {lineas.map((item) => (
@@ -542,7 +753,9 @@ export default function InformeModal({
                       value={form.formato_id || ''}
                       onChange={updateBase}
                       disabled={isView || !form.linea_id || loadingFormatos}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2 outline-none focus:border-sky-500 disabled:bg-slate-100"
+                      className={`w-full rounded-xl border bg-white px-4 py-2 outline-none focus:border-sky-500 disabled:bg-slate-100 ${
+                        error.formato_id ? 'border-red-500' : 'border-slate-300'
+                      }`}
                     >
                       <option value="">Seleccione un formato</option>
                       {formatos.map((item) => (
@@ -566,6 +779,10 @@ export default function InformeModal({
                     Datos de prensa por turno
                   </h4>
                 </div>
+
+                {error.prensa && (
+                  <p className="mb-3 text-sm text-red-600">{error.prensa}</p>
+                )}
 
                 <div className="overflow-x-auto">
                   <table className="min-w-full border-collapse text-sm">
@@ -610,6 +827,7 @@ export default function InformeModal({
                               }
                               disabled={isView}
                               errorMode="border"
+                              error={error[`prensa.${index}.silo_utilizado`]}
                             />
                           </td>
                           <td className="border border-slate-300 p-2">
@@ -625,6 +843,7 @@ export default function InformeModal({
                               }
                               disabled={isView}
                               errorMode="border"
+                              error={error[`prensa.${index}.arcilla_consumida`]}
                             />
                           </td>
                           <td className="border border-slate-300 p-2">
@@ -636,6 +855,7 @@ export default function InformeModal({
                               }
                               disabled={isView}
                               errorMode="border"
+                              error={error[`prensa.${index}.ciclos`]}
                             />
                           </td>
                           <td className="border border-slate-300 p-2">
@@ -651,6 +871,7 @@ export default function InformeModal({
                               }
                               disabled={isView}
                               errorMode="border"
+                              error={error[`prensa.${index}.peso_pieza`]}
                             />
                           </td>
                           <td className="border border-slate-300 p-2">
@@ -662,6 +883,7 @@ export default function InformeModal({
                               }
                               disabled={isView}
                               errorMode="border"
+                              error={error[`prensa.${index}.perdida`]}
                             />
                           </td>
                         </tr>
@@ -671,11 +893,79 @@ export default function InformeModal({
                 </div>
               </div>
 
+              <div className="rounded-xl bg-white p-4 shadow ring-1 ring-slate-200">
+                <div className="mb-4 flex items-center justify-between">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Resumen total de producción
+                  </h4>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border-collapse text-sm">
+                    <thead>
+                      <tr className="bg-slate-100">
+                        <th className="border border-slate-300 px-3 py-2 text-left">
+                          Concepto
+                        </th>
+                        {totalesGenerales.totalesPorTurno.map((item) => (
+                          <th
+                            key={item.turno_id}
+                            className="border border-slate-300 px-3 py-2 text-center"
+                          >
+                            {item.turno_label}
+                          </th>
+                        ))}
+                        <th className="border border-slate-300 px-3 py-2 text-center">
+                          Total m²
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="border border-slate-300 px-3 py-2 font-semibold text-slate-800">
+                          Total producto
+                        </td>
+                        {totalesGenerales.totalesPorTurno.map((item) => (
+                          <td
+                            key={item.turno_id}
+                            className="border border-slate-300 px-3 py-2 text-center font-semibold text-slate-700"
+                          >
+                            {item.total.toFixed(2)}
+                          </td>
+                        ))}
+                        <td className="border border-slate-300 px-3 py-2 text-center font-bold text-emerald-800">
+                          {totalesGenerales.totalMetrosCuadrados.toFixed(2)}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="rounded-xl border border-slate-300 bg-slate-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Total de m² producidos en el día
+                    </p>
+                    <p className="mt-2 text-2xl font-bold text-emerald-800">
+                      {totalesGenerales.totalMetrosCuadrados.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between rounded-xl bg-white p-4 shadow ring-1 ring-slate-200">
-                  <h4 className="text-base font-semibold text-slate-900">
-                    Productos del informe
-                  </h4>
+                  <div>
+                    <h4 className="text-base font-semibold text-slate-900">
+                      Productos del informe
+                    </h4>
+                    {error.informe_producto && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {error.informe_producto}
+                      </p>
+                    )}
+                  </div>
+
                   {!isView && (
                     <button
                       className="rounded-xl bg-green-800 px-3 py-2 text-white hover:bg-green-900"
@@ -721,6 +1011,11 @@ export default function InformeModal({
                             )
                           }
                           disabled={isView}
+                          error={
+                            error[
+                              `informe_producto.${productoIndex}.nombre_producto`
+                            ]
+                          }
                         />
                       </div>
 
@@ -737,6 +1032,11 @@ export default function InformeModal({
                             )
                           }
                           disabled={isView}
+                          error={
+                            error[
+                              `informe_producto.${productoIndex}.programado_m2`
+                            ]
+                          }
                         />
                       </div>
 
@@ -753,6 +1053,11 @@ export default function InformeModal({
                             )
                           }
                           disabled={isView}
+                          error={
+                            error[
+                              `informe_producto.${productoIndex}.acumulado_m2`
+                            ]
+                          }
                         />
                       </div>
 
@@ -769,6 +1074,11 @@ export default function InformeModal({
                             )
                           }
                           disabled={isView}
+                          error={
+                            error[
+                              `informe_producto.${productoIndex}.acumulado_dia`
+                            ]
+                          }
                         />
                       </div>
 
@@ -781,6 +1091,12 @@ export default function InformeModal({
                         />
                       </div>
                     </div>
+
+                    {error[`informe_producto.${productoIndex}.detalles`] && (
+                      <p className="mb-3 text-sm text-red-600">
+                        {error[`informe_producto.${productoIndex}.detalles`]}
+                      </p>
+                    )}
 
                     <div className="overflow-x-auto">
                       <table className="min-w-full border-collapse text-sm">
@@ -813,6 +1129,9 @@ export default function InformeModal({
                             <th className="border border-slate-300 px-3 py-2 text-left">
                               % casco
                             </th>
+                            <th className="border border-slate-300 px-3 py-2 text-center">
+                              Total turno
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
@@ -835,6 +1154,11 @@ export default function InformeModal({
                                   }
                                   disabled={isView}
                                   errorMode="border"
+                                  error={
+                                    error[
+                                      `informe_producto.${productoIndex}.detalles.${detalleIndex}.metros_cuadrados_primera`
+                                    ]
+                                  }
                                 />
                               </td>
                               <td className="border border-slate-300 p-2">
@@ -851,6 +1175,11 @@ export default function InformeModal({
                                   }
                                   disabled={isView}
                                   errorMode="border"
+                                  error={
+                                    error[
+                                      `informe_producto.${productoIndex}.detalles.${detalleIndex}.porcentaje_primera`
+                                    ]
+                                  }
                                 />
                               </td>
                               <td className="border border-slate-300 p-2">
@@ -867,6 +1196,11 @@ export default function InformeModal({
                                   }
                                   disabled={isView}
                                   errorMode="border"
+                                  error={
+                                    error[
+                                      `informe_producto.${productoIndex}.detalles.${detalleIndex}.metros_cuadrados_segunda`
+                                    ]
+                                  }
                                 />
                               </td>
                               <td className="border border-slate-300 p-2">
@@ -883,6 +1217,11 @@ export default function InformeModal({
                                   }
                                   disabled={isView}
                                   errorMode="border"
+                                  error={
+                                    error[
+                                      `informe_producto.${productoIndex}.detalles.${detalleIndex}.porcentaje_segunda`
+                                    ]
+                                  }
                                 />
                               </td>
                               <td className="border border-slate-300 p-2">
@@ -899,6 +1238,11 @@ export default function InformeModal({
                                   }
                                   disabled={isView}
                                   errorMode="border"
+                                  error={
+                                    error[
+                                      `informe_producto.${productoIndex}.detalles.${detalleIndex}.metros_cuadrados_tercera`
+                                    ]
+                                  }
                                 />
                               </td>
                               <td className="border border-slate-300 p-2">
@@ -915,6 +1259,11 @@ export default function InformeModal({
                                   }
                                   disabled={isView}
                                   errorMode="border"
+                                  error={
+                                    error[
+                                      `informe_producto.${productoIndex}.detalles.${detalleIndex}.porcentaje_tercera`
+                                    ]
+                                  }
                                 />
                               </td>
                               <td className="border border-slate-300 p-2">
@@ -931,6 +1280,11 @@ export default function InformeModal({
                                   }
                                   disabled={isView}
                                   errorMode="border"
+                                  error={
+                                    error[
+                                      `informe_producto.${productoIndex}.detalles.${detalleIndex}.metros_cuadrados_casco`
+                                    ]
+                                  }
                                 />
                               </td>
                               <td className="border border-slate-300 p-2">
@@ -947,7 +1301,15 @@ export default function InformeModal({
                                   }
                                   disabled={isView}
                                   errorMode="border"
+                                  error={
+                                    error[
+                                      `informe_producto.${productoIndex}.detalles.${detalleIndex}.porcentaje_casco`
+                                    ]
+                                  }
                                 />
+                              </td>
+                              <td className="border border-slate-300 px-3 py-2 text-center font-semibold text-slate-700">
+                                {getTotalDetalleTurno(detalle).toFixed(2)}
                               </td>
                             </tr>
                           ))}
@@ -956,6 +1318,122 @@ export default function InformeModal({
                     </div>
                   </div>
                 ))}
+              </div>
+
+              <div className="rounded-xl bg-white p-4 shadow ring-1 ring-slate-200">
+                <div className="mb-4 flex items-center justify-between">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Resumen total de producción
+                  </h4>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border-collapse text-sm">
+                    <thead>
+                      <tr className="bg-slate-100">
+                        <th className="border border-slate-300 px-3 py-2 text-left">
+                          Concepto
+                        </th>
+                        {totalesPrimeraSegunda.resumenPorTurno.map((item) => (
+                          <th
+                            key={item.turno_id}
+                            className="border border-slate-300 px-3 py-2 text-center"
+                          >
+                            {item.turno_label}
+                          </th>
+                        ))}
+                        <th className="border border-slate-300 px-3 py-2 text-center">
+                          Total general
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="border border-slate-300 px-3 py-2 font-semibold text-slate-800">
+                          Primera
+                        </td>
+                        {totalesPrimeraSegunda.resumenPorTurno.map((item) => (
+                          <td
+                            key={`primera-${item.turno_id}`}
+                            className="border border-slate-300 px-3 py-2 text-center font-semibold text-slate-700"
+                          >
+                            {item.primera.toFixed(2)}
+                          </td>
+                        ))}
+                        <td className="border border-slate-300 px-3 py-2 text-center font-bold text-blue-800">
+                          {totalesPrimeraSegunda.totalGeneralPrimera.toFixed(2)}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td className="border border-slate-300 px-3 py-2 font-semibold text-slate-800">
+                          Segunda
+                        </td>
+                        {totalesPrimeraSegunda.resumenPorTurno.map((item) => (
+                          <td
+                            key={`segunda-${item.turno_id}`}
+                            className="border border-slate-300 px-3 py-2 text-center font-semibold text-slate-700"
+                          >
+                            {item.segunda.toFixed(2)}
+                          </td>
+                        ))}
+                        <td className="border border-slate-300 px-3 py-2 text-center font-bold text-amber-700">
+                          {totalesPrimeraSegunda.totalGeneralSegunda.toFixed(2)}
+                        </td>
+                      </tr>
+
+                      <tr className="bg-emerald-50">
+                        <td className="border border-slate-300 px-3 py-2 font-bold text-slate-900">
+                          Total primera + segunda
+                        </td>
+                        {totalesPrimeraSegunda.resumenPorTurno.map((item) => (
+                          <td
+                            key={`total-${item.turno_id}`}
+                            className="border border-slate-300 px-3 py-2 text-center font-bold text-emerald-800"
+                          >
+                            {item.total_primera_segunda.toFixed(2)}
+                          </td>
+                        ))}
+                        <td className="border border-slate-300 px-3 py-2 text-center font-extrabold text-emerald-900">
+                          {totalesPrimeraSegunda.totalGeneralPrimeraSegunda.toFixed(
+                            2,
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="rounded-xl border border-slate-300 bg-slate-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Total primera
+                    </p>
+                    <p className="mt-2 text-2xl font-bold text-blue-800">
+                      {totalesPrimeraSegunda.totalGeneralPrimera.toFixed(2)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-300 bg-slate-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Total segunda
+                    </p>
+                    <p className="mt-2 text-2xl font-bold text-amber-700">
+                      {totalesPrimeraSegunda.totalGeneralSegunda.toFixed(2)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-300 bg-slate-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Total primera + segunda
+                    </p>
+                    <p className="mt-2 text-2xl font-bold text-emerald-800">
+                      {totalesPrimeraSegunda.totalGeneralPrimeraSegunda.toFixed(
+                        2,
+                      )}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
