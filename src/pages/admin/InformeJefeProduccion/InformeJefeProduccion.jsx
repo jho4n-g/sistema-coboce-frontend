@@ -4,15 +4,25 @@ import { useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { InformeProduccionServices as services } from '../../../service/InformeProduccion/InformeProduccion.services.js';
 import InformeJefeProduccionModal from './InformeJefeProduccionModal.jsx';
+import { getIdFormatoLinea } from '@service/Produccion/Secciones/Formato.services';
+import { getObjsUnidos as getLineas } from '@service/Produccion/Secciones/Lineas.services';
 
 const columnas = [
   {
-    label: 'Dia',
-    key: 'dia_id',
+    label: 'Fecha',
+    key: 'fecha',
   },
   {
     label: 'Supervisor',
     key: 'supervisor',
+  },
+  {
+    label: 'Linea',
+    key: 'linea',
+  },
+  {
+    label: 'Formato',
+    key: 'formato',
   },
 ];
 
@@ -130,8 +140,8 @@ export default function Frases() {
       <TablaRetutilizable
         ref={tableRef}
         getObj={services.getAll}
-        titulo="Gestion de cumpleaños"
-        datosBusqueda={['nombre_completo', 'edad']}
+        titulo="Informe Jefe de Producción"
+        datosBusqueda={['supervisor', 'linea', 'formato']}
         columnas={columnas}
         isDetalle={false}
         handleDetail={() => {}}
@@ -172,6 +182,15 @@ export default function Frases() {
         danger={false}
         onClose={handleCloseConfirmUpdate}
         onConfirm={handleUpdate}
+      />
+
+      <InformeJefeProduccionModal
+        open={openModalCreate}
+        onClose={() => setOpenModalCreate(false)}
+        onSave={handleOpenModalConfirmCreate}
+        mode="create" // create | edit | view
+        getLineas={getLineas}
+        getFormatosByLinea={getIdFormatoLinea}
       />
       <InformeJefeProduccionModal
         open={openModalCreate}
