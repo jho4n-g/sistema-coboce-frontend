@@ -43,4 +43,12 @@ export class InformeProduccionServices {
       return toServiceError(e);
     }
   }
+  static async getInformeByMesLinea(id) {
+    try {
+      const data = await api.get(`/jefe-produccion/informe/mes-linea/${id}`);
+      return data.data;
+    } catch (e) {
+      return toServiceError(e);
+    }
+  }
 }

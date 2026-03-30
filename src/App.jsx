@@ -95,7 +95,7 @@ import { AuthProvider } from './providers/auth.provider.jsx';
 import TabsAlertasAdmin from './pages/admin/gestionAlertas/TabsAlertas.jsx';
 import CarrucelMovimiento from './carruceImagenes/CarrucelMovimiento.jsx';
 //
-import InformeJefeProduccion from './pages/admin/InformeJefeProduccion/InformeJefeProduccion.jsx';
+import TabJefeProduccionAdmin from './pages/admin/InformeJefeProduccion/TabJefeProduccionAdmin.jsx';
 //Cumpleaños
 import CumpleanosAdmin from './pages/admin/Cumpleaños/Cumpleanos.jsx';
 
@@ -141,7 +141,7 @@ function App() {
           />
           <Route
             path="produccion/jefe-produccion"
-            element={<InformeJefeProduccion />}
+            element={<TabJefeProduccionAdmin />}
           />
 
           {/* Produccion Admistracion */}

@@ -37,6 +37,9 @@ const detalleSchema = z.object({
 
   metros_cuadrados_casco: reqFloat('metros cuadrados casco'),
   porcentaje_casco: reqPct('porcentaje casco'),
+
+  metros_cuadrados_pruebas: reqFloat('metros cuadrados pruebas'),
+  pruebas_porcentaje: reqPct('porcentaje pruebas'),
 });
 
 // =========================

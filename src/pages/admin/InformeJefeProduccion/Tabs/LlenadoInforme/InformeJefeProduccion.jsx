@@ -2,11 +2,11 @@ import TablaRetutilizable from '@components/TablaReutilizable';
 import ConfirmModal from '@components/ConfirmModal';
 import { useState, useRef } from 'react';
 import { toast } from 'react-toastify';
-import { InformeProduccionServices as services } from '../../../service/InformeProduccion/InformeProduccion.services.js';
+import { InformeProduccionServices as services } from '@service/InformeProduccion/InformeProduccion.services.js';
 import InformeJefeProduccionModal from './InformeJefeProduccionModal.jsx';
 import { getIdFormatoLinea } from '@service/Produccion/Secciones/Formato.services';
 import { getObjsUnidos as getLineas } from '@service/Produccion/Secciones/Lineas.services';
-import { normalizarFecha } from '../../../helpers/normalze.helpers.js';
+import { normalizarFecha } from '@helpers/normalze.helpers.js';
 
 const columnas = [
   {
@@ -25,6 +25,26 @@ const columnas = [
   {
     label: 'Formato',
     key: 'formato',
+  },
+  {
+    label: 'Primera m2',
+    key: 'total_primera_m2',
+  },
+  {
+    label: 'Segunda m2',
+    key: 'total_segunda_m2',
+  },
+  {
+    label: 'Tercera m2',
+    key: 'total_tercera_m2',
+  },
+  {
+    label: 'Casco m2',
+    key: 'total_casco_m2',
+  },
+  {
+    label: 'Pruebas m2',
+    key: 'total_pruebas_m2',
   },
   {
     label: 'Total m2',

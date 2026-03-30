@@ -27,6 +27,8 @@ const initialDetalleByTurnos = (turnos = []) =>
         porcentaje_tercera: '',
         metros_cuadrados_casco: '',
         porcentaje_casco: '',
+        metros_cuadrados_pruebas: '',
+        pruebas_porcentaje: '',
       }))
     : [];
 
@@ -63,7 +65,8 @@ const getTotalDetalleTurno = (detalle = {}) => {
     toNumber(detalle.metros_cuadrados_primera) +
     toNumber(detalle.metros_cuadrados_segunda) +
     toNumber(detalle.metros_cuadrados_tercera) +
-    toNumber(detalle.metros_cuadrados_casco)
+    toNumber(detalle.metros_cuadrados_casco) +
+    toNumber(detalle.metros_cuadrados_pruebas)
   );
 };
 
@@ -122,6 +125,30 @@ const getTotalesPrimeraSegundaPorTurno = (
       return acc + toNumber(detalle?.metros_cuadrados_segunda);
     }, 0);
 
+    const tercera = productos.reduce((acc, producto) => {
+      const detalle = (producto.detalles || []).find(
+        (item) => Number(item.turno_id) === Number(turno.id),
+      );
+
+      return acc + toNumber(detalle?.metros_cuadrados_tercera);
+    }, 0);
+
+    const casco = productos.reduce((acc, producto) => {
+      const detalle = (producto.detalles || []).find(
+        (item) => Number(item.turno_id) === Number(turno.id),
+      );
+
+      return acc + toNumber(detalle?.metros_cuadrados_casco);
+    }, 0);
+
+    const pruebas = productos.reduce((acc, producto) => {
+      const detalle = (producto.detalles || []).find(
+        (item) => Number(item.turno_id) === Number(turno.id),
+      );
+
+      return acc + toNumber(detalle?.metros_cuadrados_pruebas);
+    }, 0);
+
     const totalPrimeraSegunda = primera + segunda;
 
     return {
@@ -129,6 +156,9 @@ const getTotalesPrimeraSegundaPorTurno = (
       turno_label: turno.nombre || turno.descripcion || `Turno ${turno.id}`,
       primera,
       segunda,
+      tercera,
+      casco,
+      pruebas,
       total_primera_segunda: totalPrimeraSegunda,
     };
   });
@@ -147,6 +177,18 @@ const getTotalesPrimeraSegundaPorTurno = (
     (acc, item) => acc + item.total_primera_segunda,
     0,
   );
+  const datosGeneralTercera = datosTurno.reduce(
+    (acc, item) => acc + item.tercera,
+    0,
+  );
+  const datosGeneralCasco = datosTurno.reduce(
+    (acc, item) => acc + item.casco,
+    0,
+  );
+  const datosGeneralPruebas = datosTurno.reduce(
+    (acc, item) => acc + item.pruebas,
+    0,
+  );
 
   const resumenPorTurno = datosTurno.map((item) => ({
     turno_id: item.turno_id,
@@ -158,6 +200,11 @@ const getTotalesPrimeraSegundaPorTurno = (
 
   return {
     resumenPorTurno,
+    primera_m2: datosGeneralPrimera,
+    segunda_m2: datosGeneralSegunda,
+    tercera_m2: datosGeneralTercera,
+    casco_m2: datosGeneralCasco,
+    pruebas_m2: datosGeneralPruebas,
     totalGeneralPrimera: datosGeneralPrimera / divisorSeguro,
     totalGeneralSegunda: datosGeneralSegunda / divisorSeguro,
     totalGeneralPrimeraSegunda: datosGeneralPrimeraSegunda / divisorSeguro,
@@ -186,6 +233,7 @@ export default function InformeModal({
 
   // Totales generales
   const [generalMetros, setGeneralMetros] = useState(null);
+  const [datosCalidadesM2, setDatosCalidadesM2] = useState(null);
 
   const title = useMemo(() => {
     if (isView) return 'Detalle del informe';
@@ -197,15 +245,22 @@ export default function InformeModal({
     return getTotalesGenerales(form?.informe_producto || [], turnos);
   }, [form?.informe_producto, turnos]);
 
-  useEffect(() => {
-    setGeneralMetros(getTotalesGenerales(form?.informe_producto || [], turnos));
-  }, [form?.informe_producto, turnos, datosFormato]);
-
   const totalesPrimeraSegunda = useMemo(() => {
     return getTotalesPrimeraSegundaPorTurno(
       form?.informe_producto || [],
       turnos,
       datosFormato,
+    );
+  }, [form?.informe_producto, turnos, datosFormato]);
+
+  useEffect(() => {
+    setGeneralMetros(getTotalesGenerales(form?.informe_producto || [], turnos));
+    setDatosCalidadesM2(
+      getTotalesPrimeraSegundaPorTurno(
+        form?.informe_producto || [],
+        turnos,
+        datosFormato,
+      ),
     );
   }, [form?.informe_producto, turnos, datosFormato]);
 
@@ -272,6 +327,11 @@ export default function InformeModal({
         porcentaje_tercera: normalizeNumber(detalle.porcentaje_tercera),
         metros_cuadrados_casco: normalizeNumber(detalle.metros_cuadrados_casco),
         porcentaje_casco: normalizeNumber(detalle.porcentaje_casco),
+        //
+        metros_cuadrados_pruebas: normalizeNumber(
+          detalle.metros_cuadrados_pruebas,
+        ),
+        pruebas_porcentaje: normalizeNumber(detalle.pruebas_porcentaje),
       })),
     })),
   });
@@ -365,6 +425,7 @@ export default function InformeModal({
         }
 
         const resp = await fetchById(id);
+
         if (!active) return;
 
         if (!resp?.ok) {
@@ -417,6 +478,10 @@ export default function InformeModal({
                       porcentaje_tercera: det?.porcentaje_tercera || '',
                       metros_cuadrados_casco: det?.metros_cuadrados_casco || '',
                       porcentaje_casco: det?.porcentaje_casco || '',
+
+                      metros_cuadrados_pruebas:
+                        det?.metros_cuadrados_pruebas || '',
+                      pruebas_porcentaje: det?.pruebas_porcentaje || '',
                     };
                   }),
                 };
@@ -628,8 +693,15 @@ export default function InformeModal({
 
     try {
       setSaving(true);
+
       const dataSave = {
         total_dia_m2: generalMetros?.totalMetrosCuadrados,
+        total_primera_m2: datosCalidadesM2?.primera_m2,
+        total_segunda_m2: datosCalidadesM2?.segunda_m2,
+        total_tercera_m2: datosCalidadesM2?.tercera_m2,
+        total_casco_m2: datosCalidadesM2?.casco_m2,
+        total_pruebas_m2: datosCalidadesM2?.pruebas_m2,
+
         ...validation.data,
       };
 
@@ -1129,6 +1201,12 @@ export default function InformeModal({
                             <th className="border border-slate-300 px-3 py-2 text-left">
                               % casco
                             </th>
+                            <th className="border border-slate-300 px-3 py-2 text-left">
+                              M² pruebas
+                            </th>
+                            <th className="border border-slate-300 px-3 py-2 text-left">
+                              % pruebas
+                            </th>
                             <th className="border border-slate-300 px-3 py-2 text-center">
                               Total turno
                             </th>
@@ -1304,6 +1382,48 @@ export default function InformeModal({
                                   error={
                                     error[
                                       `informe_producto.${productoIndex}.detalles.${detalleIndex}.porcentaje_casco`
+                                    ]
+                                  }
+                                />
+                              </td>
+                              <td className="border border-slate-300 p-2">
+                                <InputField
+                                  type="number"
+                                  value={detalle.metros_cuadrados_pruebas || ''}
+                                  onChange={(e) =>
+                                    updateDetalle(
+                                      productoIndex,
+                                      detalleIndex,
+                                      'metros_cuadrados_pruebas',
+                                      e.target.value,
+                                    )
+                                  }
+                                  disabled={isView}
+                                  errorMode="border"
+                                  error={
+                                    error[
+                                      `informe_producto.${productoIndex}.detalles.${detalleIndex}.metros_cuadrados_pruebas`
+                                    ]
+                                  }
+                                />
+                              </td>
+                              <td className="border border-slate-300 p-2">
+                                <InputField
+                                  type="number"
+                                  value={detalle.pruebas_porcentaje || ''}
+                                  onChange={(e) =>
+                                    updateDetalle(
+                                      productoIndex,
+                                      detalleIndex,
+                                      'pruebas_porcentaje',
+                                      e.target.value,
+                                    )
+                                  }
+                                  disabled={isView}
+                                  errorMode="border"
+                                  error={
+                                    error[
+                                      `informe_producto.${productoIndex}.detalles.${detalleIndex}.pruebas_porcentaje`
                                     ]
                                   }
                                 />
