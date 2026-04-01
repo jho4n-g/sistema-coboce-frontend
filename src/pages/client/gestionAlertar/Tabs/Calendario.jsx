@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import * as echarts from 'echarts';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -9,12 +10,42 @@ import {
   PencilSquareIcon,
   TrashIcon,
   PlusIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline';
+
+function EChartBox({ option, height = 320 }) {
+  const chartRef = useRef(null);
+  const instanceRef = useRef(null);
+
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    instanceRef.current = echarts.init(chartRef.current);
+
+    const handleResize = () => {
+      instanceRef.current?.resize();
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      instanceRef.current?.dispose();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!instanceRef.current) return;
+    instanceRef.current.setOption(option, true);
+    instanceRef.current.resize();
+  }, [option]);
+
+  return <div ref={chartRef} style={{ width: '100%', height }} />;
+}
 
 function generarCalendario(year, month) {
   const primerDia = new Date(year, month, 1);
   const ultimoDia = new Date(year, month + 1, 0);
-
   const diasMes = ultimoDia.getDate();
 
   let inicioSemana = primerDia.getDay();
@@ -69,18 +100,71 @@ function formatearFecha(year, month, day) {
   return `${year}-${mes}-${dia}`;
 }
 
-function obtenerClaseEvento(tipo) {
-  switch (tipo) {
-    case 'informe':
+function obtenerEstadoVisualEvento(evento, hoy = new Date()) {
+  if (evento.completado) return 'completado';
+
+  const diff = diferenciaEnDias(evento.fecha, hoy);
+
+  if (diff < 0) return 'vencida';
+  if (diff <= 5) return 'cercana';
+  return 'futura';
+}
+
+function obtenerClaseEvento(evento) {
+  const estado = obtenerEstadoVisualEvento(evento);
+
+  switch (estado) {
+    case 'completado':
+      return 'bg-emerald-100 text-emerald-700 border border-emerald-200 line-through';
+    case 'vencida':
       return 'bg-red-100 text-red-700 border border-red-200';
-    case 'capacitacion':
-      return 'bg-blue-100 text-blue-700 border border-blue-200';
-    case 'reunion':
+    case 'cercana':
       return 'bg-amber-100 text-amber-700 border border-amber-200';
-    case 'recordatorio':
-      return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+    case 'futura':
+      return 'bg-blue-100 text-blue-700 border border-blue-200';
     default:
       return 'bg-slate-100 text-slate-700 border border-slate-200';
+  }
+}
+
+function obtenerEtiquetaTipo(tipoEvento) {
+  switch (tipoEvento) {
+    case 'tarea':
+      return 'Tarea';
+    case 'estatica':
+      return 'Fecha estática';
+    default:
+      return 'Evento';
+  }
+}
+
+function obtenerEtiquetaEstado(estado) {
+  switch (estado) {
+    case 'completado':
+      return 'Completado';
+    case 'vencida':
+      return 'Vencida';
+    case 'cercana':
+      return 'Próxima';
+    case 'futura':
+      return 'Futura';
+    default:
+      return 'Pendiente';
+  }
+}
+
+function obtenerClaseBadgeEstado(estado) {
+  switch (estado) {
+    case 'completado':
+      return 'bg-emerald-100 text-emerald-700';
+    case 'vencida':
+      return 'bg-red-100 text-red-700';
+    case 'cercana':
+      return 'bg-amber-100 text-amber-700';
+    case 'futura':
+      return 'bg-blue-100 text-blue-700';
+    default:
+      return 'bg-slate-100 text-slate-700';
   }
 }
 
@@ -101,62 +185,86 @@ const nombresMeses = [
 
 const eventosIniciales = [
   {
-    id: 1,
-    fecha: '2026-03-03',
+    id: 'tarea-1',
+    original_id: 1,
     titulo: 'Enviar informe semanal',
-    tipo: 'informe',
+    descripcion: 'Preparar el informe y enviarlo antes del cierre',
+    fecha: '2026-04-03',
+    tipo_evento: 'tarea',
+    completado: false,
   },
   {
-    id: 2,
-    fecha: '2026-03-08',
+    id: 'tarea-2',
+    original_id: 2,
     titulo: 'Capacitación de seguridad',
-    tipo: 'capacitacion',
+    descripcion: 'Capacitación obligatoria del personal',
+    fecha: '2026-04-08',
+    tipo_evento: 'tarea',
+    completado: false,
   },
   {
-    id: 3,
-    fecha: '2026-03-18',
+    id: 'estatica-1',
+    original_id: 3,
+    titulo: 'Renovación anual de licencia',
+    descripcion: 'Se repite cada año',
+    fecha: '2026-04-15',
+    tipo_evento: 'estatica',
+    completado: true,
+  },
+  {
+    id: 'tarea-3',
+    original_id: 4,
     titulo: 'Reunión con jefaturas',
-    tipo: 'reunion',
+    descripcion: 'Revisión de pendientes de área',
+    fecha: '2026-04-18',
+    tipo_evento: 'tarea',
+    completado: false,
   },
   {
-    id: 4,
-    fecha: '2026-03-19',
+    id: 'tarea-4',
+    original_id: 5,
     titulo: 'Entregar reporte mensual',
-    tipo: 'informe',
+    descripcion: 'Entrega del reporte consolidado',
+    fecha: '2026-04-19',
+    tipo_evento: 'tarea',
+    completado: false,
   },
   {
-    id: 5,
-    fecha: '2026-03-24',
-    titulo: 'Recordar cierre de mes',
-    tipo: 'recordatorio',
+    id: 'estatica-2',
+    original_id: 6,
+    titulo: 'Cierre anual administrativo',
+    descripcion: 'Fecha fija recurrente',
+    fecha: '2026-04-24',
+    tipo_evento: 'estatica',
+    completado: false,
   },
   {
-    id: 6,
-    fecha: '2026-02-24',
-    titulo: 'Recordar cierre de mes 12',
-    tipo: 'recordatorio',
-  },
-  {
-    id: 7,
-    fecha: '2026-03-19',
-    titulo: 'Entregar reporte mensual',
-    tipo: 'informe',
+    id: 'tarea-5',
+    original_id: 7,
+    titulo: 'Inventario general',
+    descripcion: 'Verificar diferencias y ajustar',
+    fecha: '2026-04-28',
+    tipo_evento: 'tarea',
+    completado: false,
   },
 ];
 
 const formularioVacio = {
   id: null,
+  original_id: null,
   fecha: '',
   titulo: '',
-  tipo: 'recordatorio',
+  descripcion: '',
+  tipo_evento: 'tarea',
+  completado: false,
 };
 
 export default function Alertas() {
   const fechaActual = new Date();
 
   const [fechaVista, setFechaVista] = useState({
-    year: 2026,
-    month: 2,
+    year: fechaActual.getFullYear(),
+    month: fechaActual.getMonth(),
   });
 
   const [eventos, setEventos] = useState(eventosIniciales);
@@ -173,6 +281,238 @@ export default function Alertas() {
   );
 
   const diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+  const eventosDelMes = useMemo(() => {
+    const prefijoMes = `${year}-${String(month + 1).padStart(2, '0')}-`;
+    return eventos.filter((evento) => evento.fecha.startsWith(prefijoMes));
+  }, [eventos, year, month]);
+
+  const resumenNotificaciones = useMemo(() => {
+    const hoy = new Date();
+
+    const atrasadas = [];
+    const paraHoy = [];
+    const proximas = [];
+    const completadas = [];
+    const futuras = [];
+
+    eventosDelMes.forEach((evento) => {
+      if (evento.completado) {
+        completadas.push(evento);
+        return;
+      }
+
+      const diff = diferenciaEnDias(evento.fecha, hoy);
+
+      if (diff < 0) {
+        atrasadas.push(evento);
+      } else if (diff === 0) {
+        paraHoy.push(evento);
+        proximas.push({ ...evento, diasRestantes: diff });
+      } else if (diff <= 5) {
+        proximas.push({ ...evento, diasRestantes: diff });
+      } else {
+        futuras.push(evento);
+      }
+    });
+
+    proximas.sort((a, b) => a.diasRestantes - b.diasRestantes);
+
+    return {
+      atrasadas,
+      paraHoy,
+      proximas,
+      completadas,
+      futuras,
+    };
+  }, [eventosDelMes]);
+
+  const porcentajeCumplimiento = useMemo(() => {
+    if (eventosDelMes.length === 0) return 0;
+    return Math.round(
+      (resumenNotificaciones.completadas.length / eventosDelMes.length) * 100,
+    );
+  }, [eventosDelMes, resumenNotificaciones.completadas.length]);
+
+  const pieOption = useMemo(() => {
+    return {
+      tooltip: {
+        trigger: 'item',
+      },
+      legend: {
+        bottom: 0,
+        left: 'center',
+      },
+      series: [
+        {
+          name: 'Estado de tareas',
+          type: 'pie',
+          radius: ['45%', '70%'],
+          avoidLabelOverlap: true,
+          itemStyle: {
+            borderRadius: 10,
+            borderColor: '#fff',
+            borderWidth: 2,
+          },
+          label: {
+            show: true,
+            formatter: '{b}: {c}',
+          },
+          data: [
+            {
+              value: resumenNotificaciones.completadas.length,
+              name: 'Completadas',
+              itemStyle: { color: '#10b981' },
+            },
+            {
+              value: resumenNotificaciones.atrasadas.length,
+              name: 'Vencidas',
+              itemStyle: { color: '#ef4444' },
+            },
+            {
+              value: resumenNotificaciones.proximas.length,
+              name: 'Próximas 5 días',
+              itemStyle: { color: '#f59e0b' },
+            },
+            {
+              value: resumenNotificaciones.futuras.length,
+              name: 'Futuras',
+              itemStyle: { color: '#3b82f6' },
+            },
+          ],
+        },
+      ],
+    };
+  }, [resumenNotificaciones]);
+
+  const barOption = useMemo(() => {
+    return {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow',
+        },
+      },
+      legend: {
+        bottom: 0,
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '12%',
+        top: '8%',
+        containLabel: true,
+      },
+      xAxis: {
+        type: 'category',
+        data: ['Mes actual'],
+      },
+      yAxis: {
+        type: 'value',
+        minInterval: 1,
+      },
+      series: [
+        {
+          name: 'Completadas',
+          type: 'bar',
+          data: [resumenNotificaciones.completadas.length],
+          itemStyle: { color: '#10b981' },
+          barMaxWidth: 50,
+        },
+        {
+          name: 'Vencidas',
+          type: 'bar',
+          data: [resumenNotificaciones.atrasadas.length],
+          itemStyle: { color: '#ef4444' },
+          barMaxWidth: 50,
+        },
+        {
+          name: 'Próximas 5 días',
+          type: 'bar',
+          data: [resumenNotificaciones.proximas.length],
+          itemStyle: { color: '#f59e0b' },
+          barMaxWidth: 50,
+        },
+        {
+          name: 'Futuras',
+          type: 'bar',
+          data: [resumenNotificaciones.futuras.length],
+          itemStyle: { color: '#3b82f6' },
+          barMaxWidth: 50,
+        },
+      ],
+    };
+  }, [resumenNotificaciones]);
+
+  const gaugeOption = useMemo(() => {
+    return {
+      series: [
+        {
+          type: 'gauge',
+          startAngle: 210,
+          endAngle: -30,
+          min: 0,
+          max: 100,
+          splitNumber: 5,
+          progress: {
+            show: true,
+            width: 16,
+            itemStyle: {
+              color: '#10b981',
+            },
+          },
+          pointer: {
+            show: true,
+          },
+          axisLine: {
+            lineStyle: {
+              width: 16,
+              color: [[1, '#e5e7eb']],
+            },
+          },
+          axisTick: {
+            distance: -20,
+            splitNumber: 5,
+            lineStyle: {
+              width: 1,
+              color: '#94a3b8',
+            },
+          },
+          splitLine: {
+            distance: -24,
+            length: 10,
+            lineStyle: {
+              width: 2,
+              color: '#64748b',
+            },
+          },
+          axisLabel: {
+            distance: -2,
+            color: '#64748b',
+            fontSize: 10,
+          },
+          detail: {
+            valueAnimation: true,
+            formatter: '{value}%',
+            color: '#0f172a',
+            fontSize: 26,
+            offsetCenter: [0, '55%'],
+          },
+          title: {
+            offsetCenter: [0, '80%'],
+            fontSize: 12,
+            color: '#64748b',
+          },
+          data: [
+            {
+              value: porcentajeCumplimiento,
+              name: 'Cumplimiento',
+            },
+          ],
+        },
+      ],
+    };
+  }, [porcentajeCumplimiento]);
 
   const irMesAnterior = () => {
     setFechaVista((prev) => {
@@ -202,43 +542,11 @@ export default function Alertas() {
   const esMismoMes =
     fechaActual.getFullYear() === year && fechaActual.getMonth() === month;
 
-  const margenDias = 7;
-
-  const resumenNotificaciones = useMemo(() => {
-    const hoy = new Date();
-
-    const atrasadas = [];
-    const paraHoy = [];
-    const proximas = [];
-
-    eventos.forEach((evento) => {
-      const diff = diferenciaEnDias(evento.fecha, hoy);
-
-      if (diff < 0) {
-        atrasadas.push(evento);
-      } else if (diff === 0) {
-        paraHoy.push(evento);
-      } else if (diff <= margenDias) {
-        proximas.push({ ...evento, diasRestantes: diff });
-      }
-    });
-
-    proximas.sort((a, b) => a.diasRestantes - b.diasRestantes);
-
-    return {
-      atrasadas,
-      paraHoy,
-      proximas,
-    };
-  }, [eventos]);
-
   const abrirCrearEvento = (fecha = '') => {
     setModoFormulario('crear');
     setFormulario({
-      id: null,
+      ...formularioVacio,
       fecha,
-      titulo: '',
-      tipo: 'recordatorio',
     });
     setModalFormulario(true);
   };
@@ -247,9 +555,12 @@ export default function Alertas() {
     setModoFormulario('editar');
     setFormulario({
       id: evento.id,
+      original_id: evento.original_id,
       fecha: evento.fecha,
       titulo: evento.titulo,
-      tipo: evento.tipo,
+      descripcion: evento.descripcion || '',
+      tipo_evento: evento.tipo_evento,
+      completado: evento.completado,
     });
     setModalFormulario(true);
   };
@@ -260,26 +571,37 @@ export default function Alertas() {
   };
 
   const handleChangeFormulario = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+
     setFormulario((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
   const guardarEvento = (e) => {
     e.preventDefault();
 
-    if (!formulario.titulo.trim() || !formulario.fecha || !formulario.tipo) {
+    if (
+      !formulario.titulo.trim() ||
+      !formulario.fecha ||
+      !formulario.tipo_evento
+    ) {
       return;
     }
 
     if (modoFormulario === 'crear') {
+      const prefijo =
+        formulario.tipo_evento === 'estatica' ? 'estatica' : 'tarea';
+
       const nuevoEvento = {
-        id: Date.now(),
+        id: `${prefijo}-${Date.now()}`,
+        original_id: null,
         fecha: formulario.fecha,
         titulo: formulario.titulo.trim(),
-        tipo: formulario.tipo,
+        descripcion: formulario.descripcion.trim(),
+        tipo_evento: formulario.tipo_evento,
+        completado: formulario.completado,
       };
 
       setEventos((prev) => [...prev, nuevoEvento]);
@@ -291,28 +613,13 @@ export default function Alertas() {
                 ...evento,
                 fecha: formulario.fecha,
                 titulo: formulario.titulo.trim(),
-                tipo: formulario.tipo,
+                descripcion: formulario.descripcion.trim(),
+                tipo_evento: formulario.tipo_evento,
+                completado: formulario.completado,
               }
             : evento,
         ),
       );
-
-      if (detalleDia) {
-        const nuevaFecha = formulario.fecha;
-        const fechaAnterior = detalleDia.fecha;
-
-        if (nuevaFecha !== fechaAnterior) {
-          const eventosActualizados = eventos.filter(
-            (evento) =>
-              !(evento.id === formulario.id) && evento.fecha === fechaAnterior,
-          );
-
-          setDetalleDia((prev) => ({
-            ...prev,
-            eventos: eventosActualizados,
-          }));
-        }
-      }
     }
 
     cerrarFormulario();
@@ -340,48 +647,80 @@ export default function Alertas() {
     }
   };
 
+  const toggleCompletado = (id) => {
+    setEventos((prev) =>
+      prev.map((evento) =>
+        evento.id === id
+          ? { ...evento, completado: !evento.completado }
+          : evento,
+      ),
+    );
+
+    if (detalleDia) {
+      setDetalleDia((prev) => ({
+        ...prev,
+        eventos: prev.eventos.map((evento) =>
+          evento.id === id
+            ? { ...evento, completado: !evento.completado }
+            : evento,
+        ),
+      }));
+    }
+  };
+
   return (
     <>
       <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-stretch md:justify-between">
-        <div className="grid flex-1 gap-3 md:grid-cols-3">
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+        <div className="grid flex-1 gap-3 md:grid-cols-4">
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
             <div className="flex items-center gap-2">
-              <ExclamationTriangleIcon className="h-5 w-5 text-rose-600" />
-              <p className="text-sm font-semibold text-rose-700">Atrasadas</p>
+              <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />
+              <p className="text-sm font-semibold text-red-700">Vencidas</p>
             </div>
-            <p className="mt-2 text-2xl font-bold text-rose-800">
+            <p className="mt-2 text-2xl font-bold text-red-800">
               {resumenNotificaciones.atrasadas.length}
             </p>
-            <p className="mt-1 text-xs text-rose-600">
-              Tareas vencidas antes de hoy
-            </p>
+            <p className="mt-1 text-xs text-red-600">No hechas y ya vencidas</p>
           </div>
 
           <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
             <div className="flex items-center gap-2">
               <BellIcon className="h-5 w-5 text-amber-600" />
-              <p className="text-sm font-semibold text-amber-700">Para hoy</p>
+              <p className="text-sm font-semibold text-amber-700">
+                Próximas 5 días
+              </p>
             </div>
             <p className="mt-2 text-2xl font-bold text-amber-800">
-              {resumenNotificaciones.paraHoy.length}
+              {resumenNotificaciones.proximas.length}
             </p>
-            <p className="mt-1 text-xs text-amber-600">
-              Tareas programadas para hoy
-            </p>
+            <p className="mt-1 text-xs text-amber-600">Pendientes cercanas</p>
           </div>
 
           <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
             <div className="flex items-center gap-2">
               <ClockIcon className="h-5 w-5 text-blue-600" />
-              <p className="text-sm font-semibold text-blue-700">
-                Próximas {margenDias} días
-              </p>
+              <p className="text-sm font-semibold text-blue-700">Futuras</p>
             </div>
             <p className="mt-2 text-2xl font-bold text-blue-800">
-              {resumenNotificaciones.proximas.length}
+              {resumenNotificaciones.futuras.length}
             </p>
             <p className="mt-1 text-xs text-blue-600">
-              Tareas cercanas al vencimiento
+              Pendientes después de 5 días
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+            <div className="flex items-center gap-2">
+              <CheckCircleIcon className="h-5 w-5 text-emerald-600" />
+              <p className="text-sm font-semibold text-emerald-700">
+                Completadas
+              </p>
+            </div>
+            <p className="mt-2 text-2xl font-bold text-emerald-800">
+              {resumenNotificaciones.completadas.length}
+            </p>
+            <p className="mt-1 text-xs text-emerald-600">
+              Tareas realizadas en el mes
             </p>
           </div>
         </div>
@@ -396,6 +735,21 @@ export default function Alertas() {
         </button>
       </div>
 
+      <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+        <span className="rounded-full bg-red-100 px-3 py-1 font-medium text-red-700">
+          Vencida
+        </span>
+        <span className="rounded-full bg-amber-100 px-3 py-1 font-medium text-amber-700">
+          Próxima 5 días
+        </span>
+        <span className="rounded-full bg-blue-100 px-3 py-1 font-medium text-blue-700">
+          Futura
+        </span>
+        <span className="rounded-full bg-emerald-100 px-3 py-1 font-medium text-emerald-700">
+          Completada
+        </span>
+      </div>
+
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow">
         <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -403,7 +757,7 @@ export default function Alertas() {
               {nombresMeses[month]} {year}
             </h2>
             <p className="text-sm text-slate-500">
-              Calendario de alertas y tareas
+              Calendario de tareas y fechas estáticas
             </p>
           </div>
 
@@ -481,11 +835,7 @@ export default function Alertas() {
                     abrirCrearEvento(fechaCelda);
                   }
                 }}
-                className={`relative h-28 border-b border-r border-slate-200 p-2 text-left transition ${
-                  tieneEventos
-                    ? 'cursor-pointer bg-white hover:bg-slate-50'
-                    : 'bg-white hover:bg-slate-50'
-                }`}
+                className="relative h-28 border-b border-r border-slate-200 bg-white p-2 text-left transition hover:bg-slate-50"
               >
                 <div className="flex items-start justify-between">
                   <span
@@ -501,17 +851,17 @@ export default function Alertas() {
                   {tieneEventos && (
                     <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
                       {eventosDelDia.length}{' '}
-                      {eventosDelDia.length > 1 ? 'Tareas' : 'Tarea'}
+                      {eventosDelDia.length > 1 ? 'eventos' : 'evento'}
                     </span>
                   )}
                 </div>
 
-                <div className="mt-2 max-h-17.5 space-y-1 overflow-y-auto pr-1">
+                <div className="mt-2 max-h-16 space-y-1 overflow-y-auto pr-1">
                   {eventosDelDia.slice(0, 2).map((evento) => (
                     <div
                       key={evento.id}
                       className={`truncate rounded-lg px-2 py-1 text-[10px] font-medium ${obtenerClaseEvento(
-                        evento.tipo,
+                        evento,
                       )}`}
                       title={evento.titulo}
                     >
@@ -531,6 +881,36 @@ export default function Alertas() {
         </div>
       </div>
 
+      <div className="mt-6 grid gap-6 xl:grid-cols-3">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow">
+          <h3 className="text-lg font-bold text-slate-900">
+            Resumen de tareas del mes
+          </h3>
+          <p className="mb-4 text-sm text-slate-500">Distribución por estado</p>
+          <EChartBox option={pieOption} height={320} />
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow">
+          <h3 className="text-lg font-bold text-slate-900">
+            Cantidades del mes
+          </h3>
+          <p className="mb-4 text-sm text-slate-500">
+            Comparación del mes visible
+          </p>
+          <EChartBox option={barOption} height={320} />
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow">
+          <h3 className="text-lg font-bold text-slate-900">
+            Cumplimiento mensual
+          </h3>
+          <p className="mb-4 text-sm text-slate-500">
+            Porcentaje completado del mes actual
+          </p>
+          <EChartBox option={gaugeOption} height={320} />
+        </div>
+      </div>
+
       {detalleDia && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
@@ -546,7 +926,7 @@ export default function Alertas() {
                   {detalleDia.dia} de {detalleDia.mes} de {detalleDia.year}
                 </h3>
                 <p className="mt-1 text-sm text-slate-500">
-                  {detalleDia.eventos.length} tarea(s) programada(s)
+                  {detalleDia.eventos.length} evento(s) programado(s)
                 </p>
               </div>
 
@@ -554,7 +934,7 @@ export default function Alertas() {
                 <button
                   type="button"
                   onClick={() => abrirCrearEvento(detalleDia.fecha)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-900 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-800 transition"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-800"
                 >
                   <PlusIcon className="h-4 w-4" />
                   Agregar
@@ -563,7 +943,7 @@ export default function Alertas() {
                 <button
                   type="button"
                   onClick={() => setDetalleDia(null)}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 transition"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100"
                 >
                   <XMarkIcon className="h-5 w-5" />
                 </button>
@@ -572,51 +952,89 @@ export default function Alertas() {
 
             <div className="max-h-[60vh] overflow-y-auto p-6">
               <div className="space-y-4">
-                {detalleDia.eventos.map((evento) => (
-                  <div
-                    key={evento.id}
-                    className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-slate-900">
-                          {evento.titulo}
-                        </h4>
-                        <p className="mt-1 text-sm text-slate-500">
-                          Fecha: {evento.fecha}
-                        </p>
+                {detalleDia.eventos.map((evento) => {
+                  const estadoVisual = obtenerEstadoVisualEvento(evento);
+
+                  return (
+                    <div
+                      key={evento.id}
+                      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <h4
+                            className={`font-semibold ${
+                              evento.completado
+                                ? 'text-slate-500 line-through'
+                                : 'text-slate-900'
+                            }`}
+                          >
+                            {evento.titulo}
+                          </h4>
+
+                          {evento.descripcion ? (
+                            <p className="mt-1 text-sm text-slate-500">
+                              {evento.descripcion}
+                            </p>
+                          ) : null}
+
+                          <p className="mt-2 text-sm text-slate-500">
+                            Fecha: {evento.fecha}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-2">
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                            {obtenerEtiquetaTipo(evento.tipo_evento)}
+                          </span>
+
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${obtenerClaseBadgeEstado(
+                              estadoVisual,
+                            )}`}
+                          >
+                            {obtenerEtiquetaEstado(estadoVisual)}
+                          </span>
+                        </div>
                       </div>
 
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${obtenerClaseEvento(
-                          evento.tipo,
-                        )}`}
-                      >
-                        {evento.tipo}
-                      </span>
-                    </div>
+                      <div className="mt-4 flex flex-wrap justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleCompletado(evento.id)}
+                          className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition ${
+                            evento.completado
+                              ? 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                              : 'border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                          }`}
+                        >
+                          <CheckCircleIcon className="h-4 w-4" />
+                          {evento.completado
+                            ? 'Marcar pendiente'
+                            : 'Marcar hecho'}
+                        </button>
 
-                    <div className="mt-4 flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => abrirEditarEvento(evento)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
-                      >
-                        <PencilSquareIcon className="h-4 w-4" />
-                        Editar
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => abrirEditarEvento(evento)}
+                          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                        >
+                          <PencilSquareIcon className="h-4 w-4" />
+                          Editar
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() => eliminarEvento(evento.id)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-100 transition"
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                        Eliminar
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => eliminarEvento(evento.id)}
+                          className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                          Eliminar
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
 
                 {detalleDia.eventos.length === 0 && (
                   <p className="text-sm text-slate-500">
@@ -630,7 +1048,7 @@ export default function Alertas() {
               <button
                 type="button"
                 onClick={() => setDetalleDia(null)}
-                className="rounded-xl bg-emrald-900 px-4 py-2 text-sm font-medium text-white hover:bg-emrald-800 transition"
+                className="rounded-xl bg-emerald-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-800"
               >
                 Cerrar
               </button>
@@ -641,7 +1059,7 @@ export default function Alertas() {
 
       {modalFormulario && (
         <div
-          className="fixed inset-0 z-60 flex items-center justify-center bg-slate-900/50 p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4"
           onClick={cerrarFormulario}
         >
           <div
@@ -656,14 +1074,14 @@ export default function Alertas() {
                     : 'Editar evento'}
                 </h3>
                 <p className="mt-1 text-sm text-slate-500">
-                  Completa los datos del evento
+                  Prototipo sin conexión al backend
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={cerrarFormulario}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 transition"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100"
               >
                 <XMarkIcon className="h-5 w-5" />
               </button>
@@ -687,6 +1105,20 @@ export default function Alertas() {
 
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">
+                    Descripción
+                  </label>
+                  <textarea
+                    name="descripcion"
+                    value={formulario.descripcion}
+                    onChange={handleChangeFormulario}
+                    rows={3}
+                    placeholder="Detalle del evento"
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700">
                     Fecha
                   </label>
                   <input
@@ -700,34 +1132,45 @@ export default function Alertas() {
 
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">
-                    Tipo
+                    Tipo de evento
                   </label>
                   <select
-                    name="tipo"
-                    value={formulario.tipo}
+                    name="tipo_evento"
+                    value={formulario.tipo_evento}
                     onChange={handleChangeFormulario}
                     className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500"
                   >
-                    <option value="recordatorio">Recordatorio</option>
-                    <option value="informe">Informe</option>
-                    <option value="capacitacion">Capacitación</option>
-                    <option value="reunion">Reunión</option>
+                    <option value="tarea">Tarea</option>
+                    <option value="estatica">Fecha estática</option>
                   </select>
                 </div>
+
+                <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    name="completado"
+                    checked={formulario.completado}
+                    onChange={handleChangeFormulario}
+                    className="h-4 w-4"
+                  />
+                  <span className="text-sm font-medium text-slate-700">
+                    Marcar como completado
+                  </span>
+                </label>
               </div>
 
               <div className="mt-6 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={cerrarFormulario}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                 >
                   Cancelar
                 </button>
 
                 <button
                   type="submit"
-                  className="rounded-xl bg-emerald-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-800 transition"
+                  className="rounded-xl bg-emerald-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-800"
                 >
                   {modoFormulario === 'crear' ? 'Guardar' : 'Actualizar'}
                 </button>

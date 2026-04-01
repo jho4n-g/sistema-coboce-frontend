@@ -138,7 +138,7 @@ export default function Frases() {
       <TablaRetutilizable
         ref={tableRef}
         getObj={services.getAll}
-        titulo="Gestion de cumpleaños"
+        titulo="Gestion de fechas estaticas"
         datosBusqueda={['nombre_completo', 'edad']}
         columnas={columnas}
         isDetalle={false}

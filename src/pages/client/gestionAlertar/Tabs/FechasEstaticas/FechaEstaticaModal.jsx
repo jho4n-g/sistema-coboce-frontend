@@ -186,7 +186,7 @@ export default function FrasesModal({
                     ))}
                   </select>
                 </div>
-                <div className="md:col-span-1 lg:col-span-6">
+                <div className="md:col-span-1 lg:col-span-12">
                   <InputField
                     label="Titulo"
                     type="text"
@@ -196,7 +196,7 @@ export default function FrasesModal({
                     error={error.titulo}
                   />
                 </div>
-                <div className="md:col-span-1 lg:col-span-6">
+                <div className="md:col-span-1 lg:col-span-12">
                   <InputField
                     label="Descripcion"
                     type="text"
